@@ -39,40 +39,41 @@ new class extends Component
 }; ?>
 
 <section>
-    <header>
-        <h2 class="text-lg font-medium text-gray-900">
-            {{ __('Update Password') }}
-        </h2>
-
-        <p class="mt-1 text-sm text-gray-600">
-            {{ __('Ensure your account is using a long, random password to stay secure.') }}
+    <header class="mb-4">
+        <h4 class="fw-bold text-white mb-1">
+            <i class="bi bi-key text-primary me-2"></i>Actualizar Contraseña
+        </h4>
+        <p class="text-secondary small mb-0">
+            Asegúrese de que su cuenta utilice una contraseña larga y aleatoria para mantener la seguridad.
         </p>
     </header>
 
-    <form wire:submit="updatePassword" class="mt-6 space-y-6">
-        <div>
-            <x-input-label for="update_password_current_password" :value="__('Current Password')" />
-            <x-text-input wire:model="current_password" id="update_password_current_password" name="current_password" type="password" class="mt-1 block w-full" autocomplete="current-password" />
-            <x-input-error :messages="$errors->get('current_password')" class="mt-2" />
+    <form wire:submit="updatePassword">
+        <div class="mb-3">
+            <label for="update_password_current_password" class="form-label fw-semibold text-white">Contraseña Actual</label>
+            <input wire:model="current_password" id="update_password_current_password" name="current_password" type="password" class="form-control bg-dark text-white border-secondary @error('current_password') is-invalid @enderror" autocomplete="current-password">
+            <x-input-error :messages="$errors->get('current_password')" class="invalid-feedback d-block mt-1" />
         </div>
 
-        <div>
-            <x-input-label for="update_password_password" :value="__('New Password')" />
-            <x-text-input wire:model="password" id="update_password_password" name="password" type="password" class="mt-1 block w-full" autocomplete="new-password" />
-            <x-input-error :messages="$errors->get('password')" class="mt-2" />
+        <div class="mb-3">
+            <label for="update_password_password" class="form-label fw-semibold text-white">Nueva Contraseña</label>
+            <input wire:model="password" id="update_password_password" name="password" type="password" class="form-control bg-dark text-white border-secondary @error('password') is-invalid @enderror" autocomplete="new-password">
+            <x-input-error :messages="$errors->get('password')" class="invalid-feedback d-block mt-1" />
         </div>
 
-        <div>
-            <x-input-label for="update_password_password_confirmation" :value="__('Confirm Password')" />
-            <x-text-input wire:model="password_confirmation" id="update_password_password_confirmation" name="password_confirmation" type="password" class="mt-1 block w-full" autocomplete="new-password" />
-            <x-input-error :messages="$errors->get('password_confirmation')" class="mt-2" />
+        <div class="mb-3">
+            <label for="update_password_password_confirmation" class="form-label fw-semibold text-white">Confirmar Nueva Contraseña</label>
+            <input wire:model="password_confirmation" id="update_password_password_confirmation" name="password_confirmation" type="password" class="form-control bg-dark text-white border-secondary @error('password_confirmation') is-invalid @enderror" autocomplete="new-password">
+            <x-input-error :messages="$errors->get('password_confirmation')" class="invalid-feedback d-block mt-1" />
         </div>
 
-        <div class="flex items-center gap-4">
-            <x-primary-button>{{ __('Save') }}</x-primary-button>
+        <div class="d-flex align-items-center gap-3 mt-4">
+            <button type="submit" class="btn btn-primary fw-semibold px-4">
+                <i class="bi bi-shield-check me-1"></i>Actualizar Contraseña
+            </button>
 
-            <x-action-message class="me-3" on="password-updated">
-                {{ __('Saved.') }}
+            <x-action-message class="text-success small fw-bold" on="password-updated">
+                <i class="bi bi-check-circle me-1"></i>Contraseña actualizada.
             </x-action-message>
         </div>
     </form>

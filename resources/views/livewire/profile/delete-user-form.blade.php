@@ -23,56 +23,43 @@ new class extends Component
     }
 }; ?>
 
-<section class="space-y-6">
-    <header>
-        <h2 class="text-lg font-medium text-gray-900">
-            {{ __('Delete Account') }}
-        </h2>
-
-        <p class="mt-1 text-sm text-gray-600">
-            {{ __('Once your account is deleted, all of its resources and data will be permanently deleted. Before deleting your account, please download any data or information that you wish to retain.') }}
+<section>
+    <header class="mb-4">
+        <h4 class="fw-bold text-danger mb-1">
+            <i class="bi bi-exclamation-triangle text-danger me-2"></i>Eliminar Cuenta
+        </h4>
+        <p class="text-secondary small mb-0">
+            Una vez eliminada la cuenta, todos sus datos e historial serán borrados permanentemente.
         </p>
     </header>
 
-    <x-danger-button
-        x-data=""
-        x-on:click.prevent="$dispatch('open-modal', 'confirm-user-deletion')"
-    >{{ __('Delete Account') }}</x-danger-button>
+    <button type="button" class="btn btn-outline-danger fw-semibold" x-data="" x-on:click.prevent="$dispatch('open-modal', 'confirm-user-deletion')">
+        <i class="bi bi-trash me-1"></i>Eliminar Cuenta
+    </button>
 
     <x-modal name="confirm-user-deletion" :show="$errors->isNotEmpty()" focusable>
-        <form wire:submit="deleteUser" class="p-6">
+        <form wire:submit="deleteUser" class="p-4 bg-dark text-white rounded">
+            <h5 class="fw-bold text-white mb-2">
+                ¿Está seguro de que desea eliminar su cuenta?
+            </h5>
 
-            <h2 class="text-lg font-medium text-gray-900">
-                {{ __('Are you sure you want to delete your account?') }}
-            </h2>
-
-            <p class="mt-1 text-sm text-gray-600">
-                {{ __('Once your account is deleted, all of its resources and data will be permanently deleted. Please enter your password to confirm you would like to permanently delete your account.') }}
+            <p class="text-secondary small mb-3">
+                Una vez eliminada su cuenta, no se podrán recuperar sus datos. Ingrese su contraseña para confirmar.
             </p>
 
-            <div class="mt-6">
-                <x-input-label for="password" value="{{ __('Password') }}" class="sr-only" />
-
-                <x-text-input
-                    wire:model="password"
-                    id="password"
-                    name="password"
-                    type="password"
-                    class="mt-1 block w-3/4"
-                    placeholder="{{ __('Password') }}"
-                />
-
-                <x-input-error :messages="$errors->get('password')" class="mt-2" />
+            <div class="mb-3">
+                <label for="delete_account_password" class="form-label fw-semibold text-white">Contraseña Actual</label>
+                <input wire:model="password" id="delete_account_password" name="password" type="password" class="form-control bg-dark text-white border-secondary @error('password') is-invalid @enderror" placeholder="••••••••" required>
+                <x-input-error :messages="$errors->get('password')" class="invalid-feedback d-block mt-1" />
             </div>
 
-            <div class="mt-6 flex justify-end">
-                <x-secondary-button x-on:click="$dispatch('close')">
-                    {{ __('Cancel') }}
-                </x-secondary-button>
-
-                <x-danger-button class="ms-3">
-                    {{ __('Delete Account') }}
-                </x-danger-button>
+            <div class="d-flex justify-content-end gap-2 mt-4">
+                <button type="button" class="btn btn-secondary" x-on:click="$dispatch('close')">
+                    Cancelar
+                </button>
+                <button type="submit" class="btn btn-danger fw-semibold">
+                    Confirmar Eliminación
+                </button>
             </div>
         </form>
     </x-modal>

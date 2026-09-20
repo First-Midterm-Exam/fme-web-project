@@ -1,11 +1,11 @@
 <div class="container py-4">
     <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
-            <h2 class="h3 font-weight-bold text-dark mb-1">Gestión de Usuarios</h2>
-            <p class="text-muted mb-0">Administración de acceso y asignación de roles para la plataforma CMMI de DIMA LTDA.</p>
+            <h2 class="h3 font-weight-bold text-white mb-1">Gestión de Usuarios</h2>
+            <p class="text-secondary mb-0">Administración de acceso y asignación de roles para la plataforma CMMI de DIMA LTDA.</p>
         </div>
         <div>
-            <button wire:click="openCreateModal" class="btn btn-primary d-flex align-items-center gap-2">
+            <button wire:click="openCreateModal" class="btn btn-primary d-flex align-items-center gap-2 fw-semibold">
                 <i class="bi bi-person-plus-fill"></i> Nuevo Usuario
             </button>
         </div>
@@ -18,21 +18,21 @@
         </div>
     @endif
 
-    <div class="card shadow-sm border-0 mb-4">
+    <div class="card bg-dark text-white border-secondary shadow-sm mb-4">
         <div class="card-body">
             <div class="row g-3 align-items-center mb-3">
                 <div class="col-md-6 col-lg-4">
                     <div class="input-group">
-                        <span class="input-group-text bg-white text-muted border-end-0"><i class="bi bi-search"></i></span>
-                        <input type="text" wire:model.live.debounce.300ms="search" class="form-control border-start-0" placeholder="Buscar por nombre o correo...">
+                        <span class="input-group-text bg-dark text-secondary border-secondary border-end-0"><i class="bi bi-search"></i></span>
+                        <input type="text" wire:model.live.debounce.300ms="search" class="form-control bg-dark text-white border-secondary border-start-0" placeholder="Buscar por nombre o correo...">
                     </div>
                 </div>
             </div>
 
             <div class="table-responsive">
-                <table class="table table-hover align-middle mb-0">
-                    <thead class="table-light">
-                        <tr>
+                <table class="table table-dark table-hover align-middle mb-0 border-secondary">
+                    <thead>
+                        <tr class="table-secondary text-white">
                             <th scope="col">ID</th>
                             <th scope="col">Nombre</th>
                             <th scope="col">Correo Electrónico</th>
@@ -86,7 +86,7 @@
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="6" class="text-center py-4 text-muted">
+                                <td colspan="6" class="text-center py-4 text-secondary">
                                     No se encontraron usuarios registrados.
                                 </td>
                             </tr>
@@ -103,10 +103,10 @@
 
     <!-- Modal Formulario Usuario -->
     @if($showModal)
-        <div class="modal fade show d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.5);" aria-modal="true" role="dialog">
+        <div class="modal fade show d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.7);" aria-modal="true" role="dialog">
             <div class="modal-dialog modal-dialog-centered">
-                <div class="modal-content border-0 shadow">
-                    <div class="modal-header bg-primary text-white">
+                <div class="modal-content bg-dark text-white border-secondary shadow-lg">
+                    <div class="modal-header bg-primary text-white border-secondary">
                         <h5 class="modal-title">
                             @if($isEditing)
                                 <i class="bi bi-pencil-square me-2"></i>Editar Usuario
@@ -119,57 +119,57 @@
                     <form wire:submit.prevent="save">
                         <div class="modal-body">
                             <div class="mb-3">
-                                <label for="name" class="form-label font-weight-semibold">Nombre Completo <span class="text-danger">*</span></label>
-                                <input type="text" id="name" wire:model="name" class="form-control @error('name') is-invalid @enderror" placeholder="Ej: Juan Pérez">
+                                <label for="name" class="form-label fw-semibold text-white">Nombre Completo <span class="text-danger">*</span></label>
+                                <input type="text" id="name" wire:model="name" class="form-control bg-dark text-white border-secondary @error('name') is-invalid @enderror" placeholder="Ej: Juan Pérez">
                                 @error('name')
-                                    <div class="invalid-feedback">{{ $message }}</div>
+                                    <div class="invalid-feedback d-block">{{ $message }}</div>
                                 @enderror
                             </div>
 
                             <div class="mb-3">
-                                <label for="email" class="form-label font-weight-semibold">Correo Electrónico <span class="text-danger">*</span></label>
-                                <input type="email" id="email" wire:model="email" class="form-control @error('email') is-invalid @enderror" placeholder="usuario@dima.cl">
+                                <label for="email" class="form-label fw-semibold text-white">Correo Electrónico <span class="text-danger">*</span></label>
+                                <input type="email" id="email" wire:model="email" class="form-control bg-dark text-white border-secondary @error('email') is-invalid @enderror" placeholder="usuario@dima.cl">
                                 @error('email')
-                                    <div class="invalid-feedback">{{ $message }}</div>
+                                    <div class="invalid-feedback d-block">{{ $message }}</div>
                                 @enderror
                             </div>
 
                             <div class="mb-3">
-                                <label for="password" class="form-label font-weight-semibold">
+                                <label for="password" class="form-label fw-semibold text-white">
                                     Contraseña 
                                     @if($isEditing)
-                                        <small class="text-muted">(Dejar en blanco para mantener la actual)</small>
+                                        <small class="text-secondary">(Dejar en blanco para mantener la actual)</small>
                                     @else
                                         <span class="text-danger">*</span>
                                     @endif
                                 </label>
-                                <input type="password" id="password" wire:model="password" class="form-control @error('password') is-invalid @enderror">
+                                <input type="password" id="password" wire:model="password" class="form-control bg-dark text-white border-secondary @error('password') is-invalid @enderror">
                                 @error('password')
-                                    <div class="invalid-feedback">{{ $message }}</div>
+                                    <div class="invalid-feedback d-block">{{ $message }}</div>
                                 @enderror
                             </div>
 
                             <div class="mb-3">
-                                <label for="role" class="form-label font-weight-semibold">Rol de Usuario <span class="text-danger">*</span></label>
-                                <select id="role" wire:model="role" class="form-select @error('role') is-invalid @enderror">
+                                <label for="role" class="form-label fw-semibold text-white">Rol de Usuario <span class="text-danger">*</span></label>
+                                <select id="role" wire:model="role" class="form-select bg-dark text-white border-secondary @error('role') is-invalid @enderror">
                                     @foreach($roles as $r)
                                         <option value="{{ $r }}">{{ $r }}</option>
                                     @endforeach
                                 </select>
                                 @error('role')
-                                    <div class="invalid-feedback">{{ $message }}</div>
+                                    <div class="invalid-feedback d-block">{{ $message }}</div>
                                 @enderror
                             </div>
 
                             <div class="mb-3 form-check">
                                 <input type="checkbox" id="is_active" wire:model="is_active" class="form-check-input">
-                                <label for="is_active" class="form-check-label">Usuario Activo</label>
+                                <label for="is_active" class="form-check-label text-white">Usuario Activo</label>
                             </div>
                         </div>
 
-                        <div class="modal-footer bg-light">
+                        <div class="modal-footer bg-dark border-secondary">
                             <button type="button" class="btn btn-secondary" wire:click="closeModal">Cancelar</button>
-                            <button type="submit" class="btn btn-primary">
+                            <button type="submit" class="btn btn-primary fw-semibold">
                                 @if($isEditing)
                                     Guardar Cambios
                                 @else
