@@ -30,6 +30,7 @@ class RoleSeeder extends Seeder
                 'name' => 'Administrador DIMA',
                 'password' => bcrypt('password'),
                 'is_active' => true,
+                'email_verified_at' => now(),
             ]
         );
 

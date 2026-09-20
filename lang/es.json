@@ -1,9 +1,12 @@
 {
     "Log in": "Iniciar Sesión",
+    "Register": "Registrarse",
     "Email": "Correo Electrónico",
     "Password": "Contraseña",
+    "Confirm Password": "Confirmar Contraseña",
     "Remember me": "Recordarme",
     "Forgot your password?": "¿Olvidaste tu contraseña?",
+    "Already registered?": "¿Ya estás registrado?",
     "Dashboard": "Panel Principal",
     "Profile": "Perfil",
     "Log Out": "Cerrar Sesión",
@@ -21,5 +24,9 @@
     "Activate": "Activar",
     "Save": "Guardar",
     "Cancel": "Cancelar",
-    "Close": "Cerrar"
+    "Close": "Cerrar",
+    "Email Password Reset Link": "Enviar Enlace de Restablecimiento",
+    "Reset Password": "Restablecer Contraseña",
+    "Resend Verification Email": "Reenviar Correo de Verificación",
+    "Verify Email": "Verificar Correo Electrónico"
 }

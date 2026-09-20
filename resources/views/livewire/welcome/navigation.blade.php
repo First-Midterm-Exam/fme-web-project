@@ -1,26 +1,17 @@
-<nav class="-mx-3 flex flex-1 justify-end">
+<div class="d-flex align-items-center gap-2">
     @auth
-        <a
-            href="{{ url('/dashboard') }}"
-            class="rounded-md px-3 py-2 text-black ring-1 ring-transparent transition hover:text-black/70 focus:outline-none focus-visible:ring-[#FF2D20] dark:text-white dark:hover:text-white/80 dark:focus-visible:ring-white"
-        >
-            Dashboard
+        <a href="{{ url('/dashboard') }}" class="btn btn-outline-light btn-sm fw-semibold">
+            <i class="bi bi-speedometer2 me-1"></i>Panel Principal
         </a>
     @else
-        <a
-            href="{{ route('login') }}"
-            class="rounded-md px-3 py-2 text-black ring-1 ring-transparent transition hover:text-black/70 focus:outline-none focus-visible:ring-[#FF2D20] dark:text-white dark:hover:text-white/80 dark:focus-visible:ring-white"
-        >
-            Log in
+        <a href="{{ route('login') }}" class="btn btn-outline-light btn-sm fw-semibold">
+            <i class="bi bi-box-arrow-in-right me-1"></i>Iniciar Sesión
         </a>
 
         @if (Route::has('register'))
-            <a
-                href="{{ route('register') }}"
-                class="rounded-md px-3 py-2 text-black ring-1 ring-transparent transition hover:text-black/70 focus:outline-none focus-visible:ring-[#FF2D20] dark:text-white dark:hover:text-white/80 dark:focus-visible:ring-white"
-            >
-                Register
+            <a href="{{ route('register') }}" class="btn btn-primary btn-sm fw-semibold ms-1">
+                <i class="bi bi-person-plus me-1"></i>Registrarse
             </a>
         @endif
     @endauth
-</nav>
+</div>
