@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 use App\Models\Appraisal;
+use App\Models\AppraisalScope;
 use App\Models\Practice;
 use App\Models\Project;
 use App\Models\User;
@@ -10,13 +11,8 @@ use Illuminate\Database\Seeder;
 
 class ProyectoSeeder extends Seeder
 {
-    /**
-     * Run the database seeds.
-     * Crea un proyecto y appraisal de demostración para que el equipo pueda probar inmediatamente.
-     */
     public function run(): void
     {
-        // 1. Crear o recuperar el proyecto demo
         $project = Project::firstOrCreate(
             ['code' => 'PRJ-001'],
             [
@@ -26,7 +22,6 @@ class ProyectoSeeder extends Seeder
             ]
         );
 
-        // 2. Asignar los usuarios de prueba (Jefe de Proyecto y Colaborador) al proyecto
         $usersToAssign = User::whereIn('email', [
             'jefe.proyecto@dima.com',
             'colaborador@dima.com',
@@ -36,7 +31,6 @@ class ProyectoSeeder extends Seeder
             $project->users()->syncWithoutDetaching($usersToAssign);
         }
 
-        // 3. Crear el appraisal demo en estado borrador
         $appraisal = Appraisal::firstOrCreate(
             [
                 'project_id' => $project->id,
@@ -50,7 +44,6 @@ class ProyectoSeeder extends Seeder
             ]
         );
 
-        // 4. Pre-seleccionar algunas prácticas en el alcance inicial (nivel 1, 2 y 3 de áreas clave)
         $practiceIds = Practice::whereIn('code', [
             'PLAN 1.1', 'PLAN 2.1', 'PLAN 2.2', 'PLAN 3.1',
             'EST 1.1', 'EST 2.1', 'EST 3.1',
@@ -59,7 +52,7 @@ class ProyectoSeeder extends Seeder
         ])->pluck('id');
 
         if ($practiceIds->isNotEmpty()) {
-            $appraisal->practices()->syncWithoutDetaching($practiceIds);
+            $appraisal->practices()->syncWithoutDetaching(AppraisalScope::pivotFor($practiceIds));
         }
     }
 }

@@ -1,62 +1,79 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Nuevo Criterio - HU-09</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-</head>
-<body class="bg-light py-4">
-<div class="container" style="max-width: 650px;">
-    <div class="card shadow-sm">
-        <div class="card-header bg-primary text-white">
-            <h4 class="mb-0">Registrar Criterio de Evaluación</h4>
-        </div>
-        <div class="card-body">
-            @if($errors->any())
-                <div class="alert alert-danger">
-                    <ul class="mb-0">
-                        @foreach($errors->all() as $error)
-                            <li>{{ $error }}</li>
-                        @endforeach
-                    </ul>
-                </div>
-            @endif
+<x-app-layout>
+    <x-slot name="header">Nuevo Criterio</x-slot>
 
-            <form action="{{ route('criterios.store') }}" method="POST">
-                @csrf
-                
-                <div class="mb-3">
-                    <label for="practica_id" class="form-label">ID de la Práctica <span class="text-danger">*</span></label>
-                    <input type="number" name="practica_id" id="practica_id" class="form-control" value="{{ old('practica_id', $practicaId ?? 1) }}" required>
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb mb-3">
+                    <li class="breadcrumb-item"><a href="{{ route('appraisals.practices', $appraisal->id) }}" class="text-decoration-none text-info">{{ $appraisal->name }}</a></li>
+                    <li class="breadcrumb-item"><a href="{{ route('criterios.index', [$appraisal, $practice]) }}" class="text-decoration-none text-info">{{ $practice->code }}</a></li>
+                    <li class="breadcrumb-item active text-secondary" aria-current="page">Nuevo criterio</li>
+                </ol>
+            </nav>
+
+            <div class="card bg-dark text-white border-secondary shadow-sm">
+                <div class="card-header bg-dark border-secondary py-3">
+                    <h2 class="h6 mb-0 fw-bold">
+                        <i class="bi bi-plus-circle me-2 text-info"></i>Registrar Criterio de Evaluación
+                    </h2>
+                    <div class="text-secondary small mt-1">{{ $practice->code }} — {{ $practice->name }}</div>
                 </div>
 
-                <div class="mb-3">
-                    <label for="descripcion" class="form-label">Descripción del Criterio <span class="text-danger">*</span></label>
-                    <textarea name="descripcion" id="descripcion" rows="4" class="form-control @error('descripcion') is-invalid @enderror" placeholder="Ingrese las condiciones objetivas y específicas...">{{ old('descripcion') }}</textarea>
-                    @error('descripcion')
-                        <div class="invalid-feedback">{{ $message }}</div>
-                    @enderror
-                </div>
+                <div class="card-body">
+                    @if($errors->any())
+                        <div class="alert alert-danger">
+                            <ul class="mb-0">
+                                @foreach($errors->all() as $error)
+                                    <li>{{ $error }}</li>
+                                @endforeach
+                            </ul>
+                        </div>
+                    @endif
 
-                <div class="mb-3">
-                    <label for="orden" class="form-label">Orden de Visualización</label>
-                    <input type="number" name="orden" id="orden" class="form-control" value="{{ old('orden', 1) }}" min="0">
-                    <div class="form-text">Define la posición en que se mostrará este criterio.</div>
-                </div>
+                    <form action="{{ route('criterios.store', [$appraisal, $practice]) }}" method="POST">
+                        @csrf
 
-                <div class="form-check mb-4">
-                    <input type="checkbox" name="estado" id="estado" class="form-check-input" value="1" {{ old('estado', true) ? 'checked' : '' }}>
-                    <label for="estado" class="form-check-label">Criterio Activo</label>
-                </div>
+                        <div class="mb-3">
+                            <label for="code" class="form-label fw-semibold">Código del Criterio <span class="text-danger">*</span></label>
+                            <input type="text" name="code" id="code" maxlength="50" class="form-control bg-dark text-white border-secondary @error('code') is-invalid @enderror" value="{{ old('code') }}" placeholder="Ej: {{ $practice->code }}-C3" required>
+                            @error('code')
+                                <div class="invalid-feedback d-block">{{ $message }}</div>
+                            @enderror
+                        </div>
 
-                <div class="d-flex justify-content-between">
-                    <a href="{{ route('criterios.index', ['practica_id' => $practicaId ?? 1]) }}" class="btn btn-secondary">Cancelar</a>
-                    <button type="submit" class="btn btn-success">Guardar Criterio</button>
+                        <div class="mb-3">
+                            <label for="descripcion" class="form-label fw-semibold">Descripción del Criterio <span class="text-danger">*</span></label>
+                            <textarea name="descripcion" id="descripcion" rows="4" class="form-control bg-dark text-white border-secondary @error('descripcion') is-invalid @enderror" placeholder="Ingrese las condiciones objetivas y específicas...">{{ old('descripcion') }}</textarea>
+                            @error('descripcion')
+                                <div class="invalid-feedback d-block">{{ $message }}</div>
+                            @enderror
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="orden" class="form-label fw-semibold">Orden de Visualización</label>
+                            <input type="number" name="orden" id="orden" class="form-control bg-dark text-white border-secondary" value="{{ old('orden', 0) }}" min="0">
+                            <div class="form-text text-secondary">Define la posición en que se mostrará este criterio dentro del checklist.</div>
+                        </div>
+
+                        <div class="form-check mb-2">
+                            <input type="checkbox" name="required" id="required" class="form-check-input" value="1" {{ old('required', true) ? 'checked' : '' }}>
+                            <label for="required" class="form-check-label">Criterio Obligatorio</label>
+                        </div>
+
+                        <div class="form-check mb-4">
+                            <input type="checkbox" name="estado" id="estado" class="form-check-input" value="1" {{ old('estado', true) ? 'checked' : '' }}>
+                            <label for="estado" class="form-check-label">Criterio Activo</label>
+                        </div>
+
+                        <div class="d-flex justify-content-between">
+                            <a href="{{ route('criterios.index', [$appraisal, $practice]) }}" class="btn btn-outline-secondary">Cancelar</a>
+                            <button type="submit" class="btn btn-primary fw-semibold">
+                                <i class="bi bi-save me-1"></i>Guardar Criterio
+                            </button>
+                        </div>
+                    </form>
                 </div>
-            </form>
+            </div>
         </div>
     </div>
-</div>
-</body>
-</html>
+</x-app-layout>

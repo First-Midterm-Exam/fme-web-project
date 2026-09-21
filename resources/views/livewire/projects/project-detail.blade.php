@@ -1,7 +1,4 @@
 <div class="container py-4">
-    {{-- ===================================================================
-         Header
-    ==================================================================== --}}
     <div class="d-flex justify-content-between align-items-start mb-4">
         <div>
             <nav aria-label="breadcrumb">
@@ -49,9 +46,6 @@
 
     <div class="row g-4">
 
-        {{-- ================================================================
-             Integrantes
-        ================================================================= --}}
         <div class="col-12">
             <div class="card bg-dark text-white border-secondary shadow-sm">
                 <div class="card-header bg-dark border-secondary d-flex justify-content-between align-items-center">
@@ -87,9 +81,6 @@
             </div>
         </div>
 
-        {{-- ================================================================
-             Appraisals asociados (RF-06)
-        ================================================================= --}}
         <div class="col-12">
             <div class="card bg-dark text-white border-secondary shadow-sm">
                 <div class="card-header bg-dark border-secondary d-flex justify-content-between align-items-center">
@@ -158,9 +149,6 @@
             </div>
         </div>
 
-        {{-- ================================================================
-             Evidencias — placeholder (HU-12)
-        ================================================================= --}}
         <div class="col-12">
             <div class="card bg-dark text-white border-secondary shadow-sm">
                 <div class="card-header bg-dark border-secondary">
@@ -170,8 +158,7 @@
                 </div>
                 <div class="card-body text-center py-5">
                     <i class="bi bi-hourglass-split fs-1 text-secondary mb-3 d-block"></i>
-                    <p class="text-secondary mb-1">Módulo de Evidencias aún no implementado.</p>
-                    <small class="text-secondary fst-italic">Pendiente: HU-12</small>
+                    <p class="text-secondary mb-0">Aún no hay evidencias registradas para este proyecto.</p>
                 </div>
             </div>
         </div>

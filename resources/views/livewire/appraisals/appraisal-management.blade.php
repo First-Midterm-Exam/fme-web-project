@@ -27,7 +27,6 @@
         </div>
     @endif
 
-    {{-- KPI Cards --}}
     <div class="row g-3 mb-4">
         <div class="col-6 col-md-3">
             <div class="card bg-dark text-white border-secondary shadow-sm">
@@ -83,7 +82,6 @@
         </div>
     </div>
 
-    {{-- Table & Filters --}}
     <div class="card bg-dark text-white border-secondary shadow-sm mb-4">
         <div class="card-body">
             <div class="row g-3 align-items-center justify-content-between mb-3">
@@ -167,21 +165,18 @@
                                     </span>
                                 </td>
                                 <td class="text-end">
-                                    {{-- Scope / Alcance CMMI button --}}
                                     <a href="{{ route('appraisals.scope', $appraisal->id) }}"
                                        class="btn btn-sm btn-outline-info me-1"
                                        title="Alcance CMMI">
                                         <i class="bi bi-diagram-3 me-1"></i>Alcance
                                     </a>
 
-                                    {{-- Consultar Prácticas del Alcance (HU-08) --}}
                                     <a href="{{ route('appraisals.practices', $appraisal->id) }}"
                                        class="btn btn-sm btn-outline-light me-1"
                                        title="Consultar prácticas del alcance">
                                         <i class="bi bi-list-check me-1"></i>Prácticas
                                     </a>
 
-                                    {{-- Edit (Admin only, in borrador) --}}
                                     @can('update', $appraisal)
                                         <button wire:click="openEditModal({{ $appraisal->id }})"
                                                 class="btn btn-sm btn-outline-warning me-1"
@@ -190,7 +185,6 @@
                                         </button>
                                     @endcan
 
-                                    {{-- State Transitions (Admin and Gestor de Procesos) --}}
                                     @can('updateStatus', $appraisal)
                                         @if ($appraisal->isBorrador())
                                             <button wire:click="activateAppraisal({{ $appraisal->id }})"
@@ -236,7 +230,6 @@
         </div>
     </div>
 
-    {{-- Form Modal (Create / Edit) --}}
     @if ($showFormModal)
         <div class="modal fade show d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.7);" aria-modal="true" role="dialog">
             <div class="modal-dialog modal-dialog-centered">
@@ -250,14 +243,12 @@
                     </div>
                     <form wire:submit.prevent="save">
                         <div class="modal-body">
-                            {{-- Modelo de Referencia (Constante fija) --}}
                             <div class="mb-3">
                                 <label class="form-label text-secondary small mb-1">Modelo de Referencia</label>
                                 <input type="text" class="form-control bg-secondary bg-opacity-25 text-white border-secondary" value="{{ App\Models\Appraisal::MODELO_REFERENCIA }}" readonly>
                                 <div class="form-text text-secondary">Estándar institucional constante para todos los appraisals.</div>
                             </div>
 
-                            {{-- Proyecto selector --}}
                             <div class="mb-3">
                                 <label for="appraisal-project" class="form-label">
                                     Proyecto <span class="text-danger">*</span>
@@ -290,7 +281,6 @@
                                 @endif
                             </div>
 
-                            {{-- Nombre del Appraisal --}}
                             <div class="mb-3">
                                 <label for="appraisal-name" class="form-label">
                                     Nombre del Appraisal <span class="text-danger">*</span>
@@ -305,7 +295,6 @@
                                 @enderror
                             </div>
 
-                            {{-- Dominio CMMI --}}
                             <div class="mb-3">
                                 <label for="appraisal-domain" class="form-label">
                                     Dominio CMMI <span class="text-danger">*</span>
@@ -326,7 +315,6 @@
                             </div>
 
                             <div class="row g-3 mb-3">
-                                {{-- Nivel Objetivo --}}
                                 <div class="col-md-6">
                                     <label for="appraisal-level" class="form-label">
                                         Nivel Objetivo <span class="text-danger">*</span>
@@ -345,7 +333,6 @@
                                     @enderror
                                 </div>
 
-                                {{-- Fecha Meta --}}
                                 <div class="col-md-6">
                                     <label for="appraisal-date" class="form-label">
                                         Fecha Meta <span class="text-danger">*</span>

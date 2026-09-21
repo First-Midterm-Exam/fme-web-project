@@ -19,8 +19,6 @@ class PracticeArea extends Model
     ];
 
     /**
-     * Practices belonging to this Practice Area.
-     *
      * @return HasMany<Practice, $this>
      */
     public function practices(): HasMany

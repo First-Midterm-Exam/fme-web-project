@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Database\Factories\PracticeCriterionFactory;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -19,7 +20,9 @@ class PracticeCriterion extends Model
         'practice_id',
         'code',
         'description',
+        'orden',
         'required',
+        'estado',
     ];
 
     /**
@@ -28,17 +31,25 @@ class PracticeCriterion extends Model
     protected function casts(): array
     {
         return [
+            'orden' => 'integer',
             'required' => 'boolean',
+            'estado' => 'boolean',
         ];
     }
 
     /**
-     * Practice that this criterion belongs to.
-     *
      * @return BelongsTo<Practice, $this>
      */
     public function practice(): BelongsTo
     {
         return $this->belongsTo(Practice::class);
+    }
+
+    /**
+     * @param  Builder<PracticeCriterion>  $query
+     */
+    public function scopeActivos(Builder $query): void
+    {
+        $query->where('estado', true);
     }
 }

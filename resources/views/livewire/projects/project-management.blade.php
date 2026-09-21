@@ -20,7 +20,6 @@
         </div>
     @endif
 
-    {{-- KPI Cards --}}
     <div class="row g-3 mb-4">
         <div class="col-6 col-md-3">
             <div class="card bg-dark text-white border-secondary shadow-sm">
@@ -197,9 +196,6 @@
         </div>
     </div>
 
-    {{-- ====================================================================
-         Modal: Crear / Editar Proyecto
-    ===================================================================== --}}
     @if ($showFormModal)
         <div class="modal fade show d-block"
              tabindex="-1"
@@ -283,9 +279,6 @@
         </div>
     @endif
 
-    {{-- ====================================================================
-         Modal: Gestionar Integrantes
-    ===================================================================== --}}
     @if ($showMembersModal && $membersProject)
         <div class="modal fade show d-block"
              tabindex="-1"
@@ -312,7 +305,6 @@
                             </div>
                         @endif
 
-                        {{-- Add member --}}
                         <div class="row g-2 align-items-end mb-4">
                             <div class="col">
                                 <label for="members-user-select" class="form-label fw-semibold text-white">
@@ -338,7 +330,6 @@
                             </div>
                         </div>
 
-                        {{-- Current members --}}
                         <h6 class="text-secondary fw-semibold mb-2">
                             <i class="bi bi-people me-1"></i> Integrantes actuales
                         </h6>

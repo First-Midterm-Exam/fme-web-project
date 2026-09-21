@@ -4,7 +4,7 @@ use App\Livewire\Appraisals\AppraisalScopeSelection;
 use App\Models\Appraisal;
 use App\Models\Practice;
 use App\Models\PracticeArea;
-use App\Models\PracticeAssessment;
+use App\Models\PracticeEvaluation;
 use App\Models\Project;
 use App\Models\User;
 use App\Policies\AppraisalScopePolicy;
@@ -18,10 +18,6 @@ beforeEach(function () {
     $this->seed(RoleSeeder::class);
     $this->seed(CmmiCatalogSeeder::class);
 });
-
-// =============================================================================
-// a) Seleccionar un área marca todas sus prácticas
-// =============================================================================
 
 test('selecting a practice area selects all of its practices in the scope component', function () {
     $gestor = User::factory()->gestorProcesos()->create();
@@ -49,23 +45,17 @@ test('selecting a practice area selects all of its practices in the scope compon
     $component = Livewire::test(AppraisalScopeSelection::class, ['appraisal' => $appraisal])
         ->call('toggleArea', $area->id);
 
-    // Verify all practices of the area are in selectedPracticeIds
     foreach ($expectedPracticeIds as $practiceId) {
         expect($component->get('selectedPracticeIds'))->toContain($practiceId);
     }
 
-    // Now deselecting the area should remove all its practices
     $component->call('toggleArea', $area->id);
     foreach ($expectedPracticeIds as $practiceId) {
         expect($component->get('selectedPracticeIds'))->not->toContain($practiceId);
     }
 });
 
-// =============================================================================
-// b) Activar el appraisal genera exactamente una evaluación por cada práctica en el alcance, en estado "No evaluada"
-// =============================================================================
-
-test('activating the appraisal generates exactly one assessment in No evaluada status for each practice in scope', function () {
+test('activating the appraisal generates exactly one evaluation in No evaluada status for each practice in scope', function () {
     $gestor = User::factory()->gestorProcesos()->create();
     $project = Project::create([
         'name' => 'Proyecto Evaluación',
@@ -83,32 +73,25 @@ test('activating the appraisal generates exactly one assessment in No evaluada s
         'status' => 'borrador',
     ]);
 
-    // Attach 5 practices to the scope
     $practices = Practice::take(5)->get();
     $appraisal->practices()->sync($practices->pluck('id')->toArray());
 
-    expect(PracticeAssessment::where('appraisal_id', $appraisal->id)->count())->toBe(0);
+    expect(PracticeEvaluation::where('appraisal_id', $appraisal->id)->count())->toBe(0);
 
-    // Activate using service
     $stateService = app(AppraisalStateService::class);
     $stateService->activate($appraisal);
 
     $appraisal->refresh();
     expect($appraisal->status)->toBe('activo');
 
-    // Verify exactly one assessment per practice in scope, in 'No evaluada' status
-    $assessments = PracticeAssessment::where('appraisal_id', $appraisal->id)->get();
-    expect($assessments)->toHaveCount(5);
+    $evaluations = PracticeEvaluation::where('appraisal_id', $appraisal->id)->get();
+    expect($evaluations)->toHaveCount(5);
 
-    foreach ($assessments as $assessment) {
-        expect($assessment->status)->toBe('No evaluada')
-            ->and($practices->pluck('id')->toArray())->toContain($assessment->practice_id);
+    foreach ($evaluations as $evaluation) {
+        expect($evaluation->status)->toBe('No evaluada')
+            ->and($practices->pluck('id')->toArray())->toContain($evaluation->practice_id);
     }
 });
-
-// =============================================================================
-// c) Con el appraisal activo, la pantalla de alcance no permite cambios (ni por UI ni por request directo), para ningún rol
-// =============================================================================
 
 test('with an active appraisal, scope cannot be modified by any role via UI or direct request', function () {
     $admin = User::factory()->administrador()->create();
@@ -134,27 +117,20 @@ test('with an active appraisal, scope cannot be modified by any role via UI or d
     expect($policy->update($admin, $appraisal))->toBeFalse()
         ->and($policy->update($gestor, $appraisal))->toBeFalse();
 
-    // Admin attempt via Livewire
     $this->actingAs($admin);
     Livewire::test(AppraisalScopeSelection::class, ['appraisal' => $appraisal])
         ->call('togglePractice', 1)
         ->assertForbidden();
 
-    // Gestor attempt via Livewire
     $this->actingAs($gestor);
     Livewire::test(AppraisalScopeSelection::class, ['appraisal' => $appraisal])
         ->call('save')
         ->assertForbidden();
 
-    // Direct service attempt throws DomainException
     $scopeService = app(AppraisalScopeService::class);
     expect(fn () => $scopeService->syncScope($appraisal, [1, 2]))
         ->toThrow(DomainException::class);
 });
-
-// =============================================================================
-// d) Un Jefe de Proyecto ve el alcance de su proyecto en modo lectura, sin controles de edición
-// =============================================================================
 
 test('project manager sees the scope of their assigned project in read-only mode', function () {
     $pm = User::factory()->jefeProyecto()->create();
@@ -189,10 +165,6 @@ test('project manager sees the scope of their assigned project in read-only mode
         ->assertDontSee('btn-select-all');
 });
 
-// =============================================================================
-// e) Un usuario recibe 403 al acceder al alcance de un appraisal de un proyecto ajeno
-// =============================================================================
-
 test('a user receives 403 when accessing the scope of an appraisal of an unassigned project', function () {
     $pm = User::factory()->jefeProyecto()->create();
     $colaborador = User::factory()->colaborador()->create();
@@ -213,7 +185,6 @@ test('a user receives 403 when accessing the scope of an appraisal of an unassig
         'status' => 'borrador',
     ]);
 
-    // PM accessing unassigned project appraisal scope
     $this->actingAs($pm);
     $this->get(route('appraisals.scope', $appraisal->id))
         ->assertForbidden();
@@ -221,7 +192,6 @@ test('a user receives 403 when accessing the scope of an appraisal of an unassig
     Livewire::test(AppraisalScopeSelection::class, ['appraisal' => $appraisal])
         ->assertForbidden();
 
-    // Colaborador accessing unassigned project appraisal scope
     $this->actingAs($colaborador);
     $this->get(route('appraisals.scope', $appraisal->id))
         ->assertForbidden();
@@ -229,10 +199,6 @@ test('a user receives 403 when accessing the scope of an appraisal of an unassig
     Livewire::test(AppraisalScopeSelection::class, ['appraisal' => $appraisal])
         ->assertForbidden();
 });
-
-// =============================================================================
-// f) Un Jefe de Proyecto que intenta editar el alcance por request directo recibe 403
-// =============================================================================
 
 test('project manager trying to modify scope via direct request receives 403 even in draft status', function () {
     $pm = User::factory()->jefeProyecto()->create();
@@ -256,17 +222,14 @@ test('project manager trying to modify scope via direct request receives 403 eve
 
     $this->actingAs($pm);
 
-    // Livewire togglePractice forbidden
     Livewire::test(AppraisalScopeSelection::class, ['appraisal' => $appraisal])
         ->call('togglePractice', 1)
         ->assertForbidden();
 
-    // Livewire toggleArea forbidden
     Livewire::test(AppraisalScopeSelection::class, ['appraisal' => $appraisal])
         ->call('toggleArea', 1)
         ->assertForbidden();
 
-    // Livewire save forbidden
     Livewire::test(AppraisalScopeSelection::class, ['appraisal' => $appraisal])
         ->call('save')
         ->assertForbidden();

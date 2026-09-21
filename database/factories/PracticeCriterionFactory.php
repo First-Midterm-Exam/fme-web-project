@@ -26,9 +26,6 @@ class PracticeCriterionFactory extends Factory
         ];
     }
 
-    /**
-     * Indicate that the criterion is optional.
-     */
     public function optional(): static
     {
         return $this->state(fn (array $attributes): array => [

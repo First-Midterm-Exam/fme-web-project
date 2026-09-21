@@ -1,5 +1,4 @@
 <div>
-    {{-- Header & Breadcrumbs --}}
     <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
             <nav aria-label="breadcrumb">
@@ -28,7 +27,6 @@
         </div>
     </div>
 
-    {{-- Feedback Messages --}}
     @if (session()->has('message'))
         <div class="alert alert-success alert-dismissible fade show shadow-sm" role="alert">
             <i class="bi bi-check-circle-fill me-2"></i>{{ session('message') }}
@@ -43,7 +41,6 @@
         </div>
     @endif
 
-    {{-- State / Access Mode Banner --}}
     @if (! $appraisal->isBorrador())
         <div class="alert alert-warning border-0 shadow-sm d-flex align-items-center mb-4">
             <i class="bi bi-lock-fill fs-4 me-3 text-warning"></i>
@@ -76,7 +73,6 @@
         </div>
     @endif
 
-    {{-- Resumen del Alcance Resultante (Summary Metrics) --}}
     <div class="row g-3 mb-4">
         <div class="col-md-3 col-sm-6">
             <div class="card border-0 shadow-sm h-100">
@@ -134,7 +130,6 @@
         </div>
     </div>
 
-    {{-- Toolbar / Quick Actions & Filters --}}
     <div class="card border-0 shadow-sm mb-4">
         <div class="card-body p-3">
             <div class="row g-2 align-items-center">
@@ -162,7 +157,6 @@
         </div>
     </div>
 
-    {{-- Tree Selection (Árbol de Áreas y Prácticas) --}}
     <div class="row g-3">
         @forelse ($areas as $area)
             @php
@@ -177,7 +171,6 @@
                 <div class="card border-0 shadow-sm">
                     <div class="card-header bg-white py-3 border-bottom d-flex align-items-center justify-content-between">
                         <div class="d-flex align-items-center gap-3">
-                            {{-- Area Checkbox --}}
                             <div class="form-check m-0">
                                 <input class="form-check-input area-checkbox"
                                     type="checkbox"
@@ -264,7 +257,6 @@
         @endforelse
     </div>
 
-    {{-- Bottom Save Bar (Sticky footer if editable) --}}
     @if ($canEdit)
         <div class="card border-0 shadow-lg mt-4 bg-white sticky-bottom py-2">
             <div class="card-body d-flex align-items-center justify-content-between">

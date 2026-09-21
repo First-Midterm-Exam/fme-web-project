@@ -5,88 +5,107 @@ declare(strict_types=1);
 namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreCriterioRequest;
-use App\Models\Criterio;
+use App\Models\Appraisal;
+use App\Models\Practice;
+use App\Models\PracticeCriterion;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Http\Request;
 use Illuminate\View\View;
 
 class CriterioController extends Controller
 {
-    /**
-     * Muestra la lista de criterios asociados a una práctica.
-     */
-    public function index(Request $request): View
+    use AuthorizesRequests;
+
+    public function index(Appraisal $appraisal, Practice $practice): View
     {
-        $practicaId = $request->query('practica_id');
+        $this->autorizarContexto($appraisal, $practice);
 
-        $criterios = Criterio::query()
-            ->when($practicaId, fn ($query, $id) => $query->where('practica_id', $id))
-            ->orderBy('orden', 'asc')
-            ->get();
-
-        return view('criterios.index', compact('criterios', 'practicaId'));
+        return view('criterios.index', [
+            'appraisal' => $appraisal,
+            'practice' => $practice,
+            'criterios' => $practice->criteria()->get(),
+        ]);
     }
 
-    /**
-     * Formulario de creación de criterio.
-     */
-    public function create(Request $request): View
+    public function create(Appraisal $appraisal, Practice $practice): View
     {
-        $practicaId = $request->query('practica_id');
+        $this->autorizarContexto($appraisal, $practice);
 
-        return view('criterios.create', compact('practicaId'));
+        return view('criterios.create', [
+            'appraisal' => $appraisal,
+            'practice' => $practice,
+        ]);
     }
 
-    /**
-     * Almacena un criterio recién creado en la base de datos.
-     */
-    public function store(StoreCriterioRequest $request): RedirectResponse
+    public function store(StoreCriterioRequest $request, Appraisal $appraisal, Practice $practice): RedirectResponse
     {
-        $validated = $request->validated();
-        $validated['orden'] = (int) ($validated['orden'] ?? 0);
-        $validated['estado'] = $request->boolean('estado', true);
+        $this->autorizarContexto($appraisal, $practice);
 
-        Criterio::create($validated);
+        $practice->criteria()->create($this->datosValidados($request));
 
         return redirect()
-            ->route('criterios.index', ['practica_id' => $request->integer('practica_id')])
+            ->route('criterios.index', [$appraisal, $practice])
             ->with('success', 'El criterio de evaluación fue registrado exitosamente.');
     }
 
-    /**
-     * Formulario de edición de un criterio.
-     */
-    public function edit(Criterio $criterio): View
+    public function edit(Appraisal $appraisal, Practice $practice, PracticeCriterion $criterio): View
     {
-        return view('criterios.edit', compact('criterio'));
+        $this->autorizarContexto($appraisal, $practice, $criterio);
+
+        return view('criterios.edit', [
+            'appraisal' => $appraisal,
+            'practice' => $practice,
+            'criterio' => $criterio,
+        ]);
     }
 
-    /**
-     * Actualiza el criterio en la base de datos.
-     */
-    public function update(StoreCriterioRequest $request, Criterio $criterio): RedirectResponse
+    public function update(StoreCriterioRequest $request, Appraisal $appraisal, Practice $practice, PracticeCriterion $criterio): RedirectResponse
     {
-        $validated = $request->validated();
-        $validated['orden'] = (int) ($validated['orden'] ?? 0);
-        $validated['estado'] = $request->boolean('estado', false);
+        $this->autorizarContexto($appraisal, $practice, $criterio);
 
-        $criterio->update($validated);
+        $criterio->update($this->datosValidados($request));
 
         return redirect()
-            ->route('criterios.index', ['practica_id' => $criterio->practica_id])
+            ->route('criterios.index', [$appraisal, $practice])
             ->with('success', 'El criterio de evaluación fue actualizado exitosamente.');
     }
 
-    /**
-     * Elimina el criterio de la base de datos.
-     */
-    public function destroy(Criterio $criterio): RedirectResponse
+    public function destroy(Appraisal $appraisal, Practice $practice, PracticeCriterion $criterio): RedirectResponse
     {
-        $practicaId = $criterio->practica_id;
+        $this->autorizarContexto($appraisal, $practice, $criterio);
+
         $criterio->delete();
 
         return redirect()
-            ->route('criterios.index', ['practica_id' => $practicaId])
+            ->route('criterios.index', [$appraisal, $practice])
             ->with('success', 'El criterio de evaluación fue eliminado exitosamente.');
+    }
+
+    private function autorizarContexto(Appraisal $appraisal, Practice $practice, ?PracticeCriterion $criterio = null): void
+    {
+        $this->authorize('view', $appraisal);
+
+        abort_unless(
+            $appraisal->practices()->where('practices.id', $practice->id)->exists(),
+            404
+        );
+
+        abort_if($criterio !== null && $criterio->practice_id !== $practice->id, 404);
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function datosValidados(StoreCriterioRequest $request): array
+    {
+        $validated = $request->validated();
+
+        return [
+            'code' => $validated['code'],
+            'description' => $validated['descripcion'],
+            'orden' => (int) ($validated['orden'] ?? 0),
+            'required' => $request->boolean('required'),
+            'estado' => $request->boolean('estado'),
+        ];
     }
 }

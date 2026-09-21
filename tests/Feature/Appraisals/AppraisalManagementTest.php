@@ -14,10 +14,6 @@ beforeEach(function () {
     $this->seed(RoleSeeder::class);
 });
 
-// =============================================================================
-// a) Crear en borrador -> activar -> verificar selector bloqueado -> cerrar -> solo lectura
-// =============================================================================
-
 test('admin can create appraisal in borrador, activate it, and close it becoming read-only', function () {
     $admin = User::factory()->administrador()->create();
     $project = Project::create([
@@ -29,7 +25,6 @@ test('admin can create appraisal in borrador, activate it, and close it becoming
 
     $this->actingAs($admin);
 
-    // 1. Create in borrador
     Livewire::test(AppraisalManagement::class)
         ->call('openCreateModal')
         ->set('projectId', $project->id)
@@ -44,34 +39,26 @@ test('admin can create appraisal in borrador, activate it, and close it becoming
     expect($appraisal->status)->toBe('borrador')
         ->and($appraisal->project_id)->toBe($project->id);
 
-    // 2. Activate appraisal
     Livewire::test(AppraisalManagement::class)
         ->call('activateAppraisal', $appraisal->id);
 
     $appraisal->refresh();
     expect($appraisal->status)->toBe('activo');
 
-    // 3. Verify project is locked: update policy rejects editing an active appraisal
     $policy = new AppraisalPolicy;
     expect($policy->update($admin, $appraisal))->toBeFalse()
         ->and($policy->updateStatus($admin, $appraisal))->toBeTrue();
 
-    // 4. Close appraisal
     Livewire::test(AppraisalManagement::class)
         ->call('closeAppraisal', $appraisal->id);
 
     $appraisal->refresh();
     expect($appraisal->status)->toBe('cerrado');
 
-    // 5. Verify policy marks it non-editable and non-status-updatable once closed
     $policy = new AppraisalPolicy;
     expect($policy->update($admin, $appraisal))->toBeFalse()
         ->and($policy->updateStatus($admin, $appraisal))->toBeFalse();
 });
-
-// =============================================================================
-// b) Intentar editar el proyecto de un appraisal activo debe fallar (validación server-side)
-// =============================================================================
 
 test('editing the project of an active appraisal fails server-side validation', function () {
     $admin = User::factory()->administrador()->create();
@@ -99,15 +86,10 @@ test('editing the project of an active appraisal fails server-side validation', 
 
     $this->actingAs($admin);
 
-    // Service validation throws ValidationException
     $service = new AppraisalStateService;
     expect(fn () => $service->validateProjectChange($appraisal, $project2->id))
         ->toThrow(ValidationException::class);
 });
-
-// =============================================================================
-// c) Un Jefe de Proyecto ve solo los appraisals de sus proyectos asignados
-// =============================================================================
 
 test('project manager only sees appraisals of their assigned projects', function () {
     $pm = User::factory()->jefeProyecto()->create();
@@ -151,10 +133,6 @@ test('project manager only sees appraisals of their assigned projects', function
         ->and($visible)->not->toContain($otherAppraisal->id);
 });
 
-// =============================================================================
-// d) Un Jefe de Proyecto o Colaborador recibe 403 al pedir appraisal de un proyecto ajeno
-// =============================================================================
-
 test('project manager and contributor receive 403 when accessing appraisal of an unassigned project', function () {
     $pm = User::factory()->jefeProyecto()->create();
     $colaborador = User::factory()->colaborador()->create();
@@ -181,10 +159,6 @@ test('project manager and contributor receive 403 when accessing appraisal of an
         ->and($policy->view($colaborador, $appraisal))->toBeFalse();
 });
 
-// =============================================================================
-// e) Un Gestor de Procesos puede cambiar el estado de un appraisal pero no crearlo
-// =============================================================================
-
 test('process manager can change appraisal status but receives 403 when creating', function () {
     $gestor = User::factory()->gestorProcesos()->create();
     $project = Project::create([
@@ -205,13 +179,11 @@ test('process manager can change appraisal status but receives 403 when creating
 
     $this->actingAs($gestor);
 
-    // Can change status (borrador -> activo)
     Livewire::test(AppraisalManagement::class)
         ->call('activateAppraisal', $appraisal->id);
 
     expect($appraisal->fresh()->status)->toBe('activo');
 
-    // Cannot create (receives 403)
     Livewire::test(AppraisalManagement::class)
         ->call('openCreateModal')
         ->assertForbidden();
@@ -220,10 +192,6 @@ test('process manager can change appraisal status but receives 403 when creating
     expect($policy->create($gestor))->toBeFalse()
         ->and($policy->updateStatus($gestor, $appraisal))->toBeTrue();
 });
-
-// =============================================================================
-// f) No se puede crear un appraisal sobre un proyecto cerrado
-// =============================================================================
 
 test('cannot create an appraisal on a closed project', function () {
     $admin = User::factory()->administrador()->create();
@@ -236,7 +204,6 @@ test('cannot create an appraisal on a closed project', function () {
 
     $this->actingAs($admin);
 
-    // ValidationException thrown
     $service = new AppraisalStateService;
     expect(fn () => $service->validateCreation($closedProject->id))
         ->toThrow(ValidationException::class);

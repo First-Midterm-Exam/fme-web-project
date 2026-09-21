@@ -33,8 +33,6 @@ class Practice extends Model
     }
 
     /**
-     * Practice Area that groups this practice.
-     *
      * @return BelongsTo<PracticeArea, $this>
      */
     public function practiceArea(): BelongsTo
@@ -43,33 +41,29 @@ class Practice extends Model
     }
 
     /**
-     * Appraisals that include this practice in their scope.
-     *
-     * @return BelongsToMany<Appraisal, $this>
+     * @return BelongsToMany<Appraisal, $this, AppraisalScope>
      */
     public function appraisals(): BelongsToMany
     {
-        return $this->belongsToMany(Appraisal::class, 'appraisal_scope')
+        return $this->belongsToMany(Appraisal::class, 'appraisal_scopes')
+            ->using(AppraisalScope::class)
+            ->withPivot(['practice_area_id', 'descripcion', 'incluida'])
             ->withTimestamps();
     }
 
     /**
-     * Evaluation assessments for this practice across appraisals.
-     *
-     * @return HasMany<PracticeAssessment, $this>
+     * @return HasMany<PracticeEvaluation, $this>
      */
-    public function assessments(): HasMany
+    public function evaluations(): HasMany
     {
-        return $this->hasMany(PracticeAssessment::class);
+        return $this->hasMany(PracticeEvaluation::class);
     }
 
     /**
-     * Criteria belonging to this practice.
-     *
      * @return HasMany<PracticeCriterion, $this>
      */
     public function criteria(): HasMany
     {
-        return $this->hasMany(PracticeCriterion::class)->orderBy('code');
+        return $this->hasMany(PracticeCriterion::class)->orderBy('orden')->orderBy('code');
     }
 }

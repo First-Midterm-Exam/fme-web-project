@@ -5,42 +5,45 @@ declare(strict_types=1);
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class StoreCriterioRequest extends FormRequest
 {
-    /**
-     * Determina si el usuario está autorizado a realizar esta solicitud.
-     */
     public function authorize(): bool
     {
-        return true;
+        return $this->user()?->can('evaluar-cumplimiento') ?? false;
     }
 
     /**
-     * Reglas de validación aplicadas a la solicitud.
-     *
-     * @return array<string, array<int, string>>
+     * @return array<string, array<int, mixed>>
      */
     public function rules(): array
     {
         return [
-            'practica_id' => ['required', 'integer'],
+            'code' => [
+                'required',
+                'string',
+                'max:50',
+                Rule::unique('practice_criteria', 'code')
+                    ->where('practice_id', $this->route('practice')?->id)
+                    ->ignore($this->route('criterio')),
+            ],
             'descripcion' => ['required', 'string'],
             'orden' => ['nullable', 'integer', 'min:0'],
+            'required' => ['nullable', 'boolean'],
             'estado' => ['nullable', 'boolean'],
         ];
     }
 
     /**
-     * Mensajes de validación personalizados.
-     *
      * @return array<string, string>
      */
     public function messages(): array
     {
         return [
+            'code.required' => 'El código del criterio es obligatorio.',
+            'code.unique' => 'Ya existe un criterio con ese código en esta práctica.',
             'descripcion.required' => 'La descripción del criterio debe ser ingresada obligatoriamente.',
-            'practica_id.required' => 'Debe asociar el criterio a una práctica.',
         ];
     }
 }

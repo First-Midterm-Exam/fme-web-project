@@ -3,16 +3,14 @@
 namespace App\Services;
 
 use App\Models\Appraisal;
-use App\Models\PracticeAssessment;
+use App\Models\AppraisalScope;
+use App\Models\PracticeEvaluation;
 use DomainException;
 use Illuminate\Support\Facades\DB;
 
 class AppraisalScopeService
 {
     /**
-     * Synchronize the CMMI practices included in an appraisal's scope.
-     * Scope can only be modified while the appraisal is in 'borrador' state.
-     *
      * @param  array<int, int>  $practiceIds
      *
      * @throws DomainException
@@ -23,13 +21,10 @@ class AppraisalScopeService
             throw new DomainException('El alcance solo puede modificarse cuando el appraisal está en estado borrador.');
         }
 
-        $appraisal->practices()->sync($practiceIds);
+        $appraisal->practices()->sync(AppraisalScope::pivotFor($practiceIds));
     }
 
     /**
-     * Freeze the scope of an appraisal when it is activated.
-     * Automatically generates evaluation records in 'No evaluada' status for each practice in scope.
-     *
      * @throws DomainException
      */
     public function freezeScopeOnActivation(Appraisal $appraisal): void
@@ -42,22 +37,19 @@ class AppraisalScopeService
 
         DB::transaction(function () use ($appraisal, $practices): void {
             foreach ($practices as $practice) {
-                PracticeAssessment::firstOrCreate(
+                PracticeEvaluation::firstOrCreate(
                     [
                         'appraisal_id' => $appraisal->id,
                         'practice_id' => $practice->id,
                     ],
                     [
-                        'status' => PracticeAssessment::STATUS_NO_EVALUADA,
+                        'status' => PracticeEvaluation::STATUS_NO_EVALUADA,
                     ]
                 );
             }
         });
     }
 
-    /**
-     * Check if the appraisal scope is currently editable.
-     */
     public function isScopeEditable(Appraisal $appraisal): bool
     {
         return $appraisal->isBorrador();

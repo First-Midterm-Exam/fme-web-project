@@ -48,13 +48,7 @@ class Appraisal extends Model
         ];
     }
 
-    // -------------------------------------------------------------------------
-    // Relations
-    // -------------------------------------------------------------------------
-
     /**
-     * Project being evaluated by this appraisal.
-     *
      * @return BelongsTo<Project, $this>
      */
     public function project(): BelongsTo
@@ -63,34 +57,25 @@ class Appraisal extends Model
     }
 
     /**
-     * CMMI practices included in this appraisal's scope.
-     *
-     * @return BelongsToMany<Practice, $this>
+     * @return BelongsToMany<Practice, $this, AppraisalScope>
      */
     public function practices(): BelongsToMany
     {
-        return $this->belongsToMany(Practice::class, 'appraisal_scope')
+        return $this->belongsToMany(Practice::class, 'appraisal_scopes')
+            ->using(AppraisalScope::class)
+            ->withPivot(['practice_area_id', 'descripcion', 'incluida'])
             ->withTimestamps();
     }
 
     /**
-     * Practice assessments generated for this appraisal.
-     *
-     * @return HasMany<PracticeAssessment, $this>
+     * @return HasMany<PracticeEvaluation, $this>
      */
-    public function practiceAssessments(): HasMany
+    public function practiceEvaluations(): HasMany
     {
-        return $this->hasMany(PracticeAssessment::class);
+        return $this->hasMany(PracticeEvaluation::class);
     }
 
-    // -------------------------------------------------------------------------
-    // Scopes
-    // -------------------------------------------------------------------------
-
     /**
-     * Scope to filter appraisals visible to the given user.
-     * Delegates entirely to Project::visibleFor($user).
-     *
      * @param  Builder<Appraisal>  $query
      */
     public function scopeVisibleFor(Builder $query, User $user): void
@@ -99,10 +84,6 @@ class Appraisal extends Model
             $q->visibleFor($user);
         });
     }
-
-    // -------------------------------------------------------------------------
-    // Helpers
-    // -------------------------------------------------------------------------
 
     public function isBorrador(): bool
     {

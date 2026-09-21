@@ -10,8 +10,6 @@ use Illuminate\Validation\ValidationException;
 class AppraisalStateService
 {
     /**
-     * Validate creation of an appraisal on a project.
-     *
      * @throws ValidationException
      */
     public function validateCreation(int $projectId): Project
@@ -28,8 +26,6 @@ class AppraisalStateService
     }
 
     /**
-     * Validate project immutability once an appraisal is active or closed.
-     *
      * @throws ValidationException
      */
     public function validateProjectChange(Appraisal $appraisal, int $newProjectId): void
@@ -42,9 +38,6 @@ class AppraisalStateService
     }
 
     /**
-     * Transition an appraisal from borrador to activo.
-     * Freezes the scope and automatically generates evaluation assessments.
-     *
      * @throws DomainException
      */
     public function activate(Appraisal $appraisal, ?AppraisalScopeService $scopeService = null): void
@@ -66,8 +59,6 @@ class AppraisalStateService
     }
 
     /**
-     * Transition an appraisal from activo to cerrado.
-     *
      * @throws DomainException
      */
     public function close(Appraisal $appraisal): void
