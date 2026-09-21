@@ -1,6 +1,7 @@
 <?php
 
 use App\Livewire\Users\UserManagement;
+use App\Models\Project;
 use App\Models\Rol;
 use App\Models\User;
 use App\Policies\UserPolicy;
@@ -63,8 +64,8 @@ test('cada modulo restringe el acceso por url directa segun el rol', function (s
             : $respuesta->assertForbidden();
     }
 })->with([
-    ['proyectos.index', [Rol::ADMINISTRADOR]],
-    ['appraisals.index', [Rol::ADMINISTRADOR]],
+    ['proyectos.index', [Rol::ADMINISTRADOR, Rol::GESTOR_PROCESOS, Rol::JEFE_PROYECTO, Rol::COLABORADOR]],
+    ['appraisals.index', [Rol::ADMINISTRADOR, Rol::GESTOR_PROCESOS, Rol::JEFE_PROYECTO, Rol::COLABORADOR]],
     ['alcance.areas', [Rol::GESTOR_PROCESOS]],
     ['alcance.practicas', [Rol::GESTOR_PROCESOS]],
     ['cumplimiento.evaluacion', [Rol::GESTOR_PROCESOS]],
@@ -138,7 +139,7 @@ test('el menu no renderiza la opcion de usuarios para un colaborador', function 
 
     $respuesta->assertOk()
         ->assertDontSee(route('users.index'))
-        ->assertDontSee(route('proyectos.index'))
+        ->assertSee(route('proyectos.index'))
         ->assertSee(route('evidencias.index'));
 });
 
@@ -163,10 +164,10 @@ test('el menu lateral solo muestra los grupos permitidos por el rol', function (
         $respuesta->assertDontSee($grupo);
     }
 })->with([
-    ['administrador', ['Administración', 'Usuarios', 'Proyectos', 'Appraisals'], ['Alcance CMMI', 'Gaps y Acciones', 'Reportes']],
-    ['gestorProcesos', ['Alcance CMMI', 'Cumplimiento', 'Gaps y Acciones', 'Reportes'], ['Administración', 'Usuarios']],
-    ['jefeProyecto', ['Reportes', 'Trazabilidad'], ['Administración', 'Cumplimiento', 'Gaps y Acciones']],
-    ['colaborador', ['Registro de Evidencias'], ['Administración', 'Reportes', 'Gaps y Acciones']],
+    ['administrador', ['Usuarios', 'Proyectos', 'Appraisals'], ['Alcance CMMI', 'Gaps y Acciones', 'Reportes']],
+    ['gestorProcesos', ['Alcance CMMI', 'Cumplimiento', 'Gaps y Acciones', 'Reportes', 'Proyectos', 'Appraisals'], ['Usuarios']],
+    ['jefeProyecto', ['Reportes', 'Trazabilidad', 'Proyectos', 'Appraisals'], ['Usuarios', 'Cumplimiento', 'Gaps y Acciones']],
+    ['colaborador', ['Registro de Evidencias', 'Proyectos', 'Appraisals'], ['Usuarios', 'Reportes', 'Gaps y Acciones']],
 ]);
 
 test('asignar un rol inexistente a un usuario falla', function () {
@@ -204,3 +205,29 @@ test('la pagina 403 se muestra en espanol', function () {
 });
 
 test('un jefe de proyecto solo ve evidencias de sus proyectos asignados')->todo();
+
+test('el detalle de un proyecto permite acceso a administrador y gestor de procesos, y restringe a jefe de proyecto y colaborador si no estan asignados', function () {
+    $proyecto = Project::create([
+        'name' => 'Proyecto Demo',
+        'code' => 'DEMO-01',
+        'start_date' => '2026-01-01',
+        'status' => 'activo',
+    ]);
+
+    $admin = User::factory()->administrador()->create();
+    $gestor = User::factory()->gestorProcesos()->create();
+    $jefeNoAsignado = User::factory()->jefeProyecto()->create();
+    $colaboradorNoAsignado = User::factory()->colaborador()->create();
+
+    $jefeAsignado = User::factory()->jefeProyecto()->create();
+    $colaboradorAsignado = User::factory()->colaborador()->create();
+    $proyecto->users()->attach([$jefeAsignado->id, $colaboradorAsignado->id]);
+
+    $this->actingAs($admin)->get(route('proyectos.show', $proyecto))->assertOk();
+    $this->actingAs($gestor)->get(route('proyectos.show', $proyecto))->assertOk();
+    $this->actingAs($jefeAsignado)->get(route('proyectos.show', $proyecto))->assertOk();
+    $this->actingAs($colaboradorAsignado)->get(route('proyectos.show', $proyecto))->assertOk();
+
+    $this->actingAs($jefeNoAsignado)->get(route('proyectos.show', $proyecto))->assertForbidden();
+    $this->actingAs($colaboradorNoAsignado)->get(route('proyectos.show', $proyecto))->assertForbidden();
+});

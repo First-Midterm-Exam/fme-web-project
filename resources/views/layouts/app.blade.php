@@ -17,8 +17,7 @@
 
         <style>
             :root {
-                --barra-ancho: 76px;
-                --barra-ancho-abierto: 272px;
+                --barra-ancho: 260px;
                 --barra-fondo: #14171c;
                 --superficie: #1b1f26;
             }
@@ -45,34 +44,12 @@
                 flex-direction: column;
                 overflow-x: hidden;
                 overflow-y: auto;
-                transition: width .18s ease;
                 scrollbar-width: thin;
             }
 
-            .barra-lateral:hover,
-            .barra-lateral.abierta {
-                width: var(--barra-ancho-abierto);
-                box-shadow: 0 0 40px rgba(0, 0, 0, .55);
-            }
-
             .barra-lateral .rotulo,
-            .barra-lateral .submenu,
             .barra-lateral .flecha {
-                display: none;
-            }
-
-            .barra-lateral:hover .rotulo,
-            .barra-lateral.abierta .rotulo,
-            .barra-lateral:hover .submenu,
-            .barra-lateral.abierta .submenu,
-            .barra-lateral:hover .flecha,
-            .barra-lateral.abierta .flecha {
                 display: inline;
-            }
-
-            .barra-lateral:hover .submenu.collapse:not(.show),
-            .barra-lateral.abierta .submenu.collapse:not(.show) {
-                display: none;
             }
 
             .barra-marca {
@@ -229,7 +206,6 @@
                     cerrarSubmenus();
                 };
 
-                barra.addEventListener('mouseleave', cerrarBarra);
                 velo?.addEventListener('click', cerrarBarra);
 
                 document.querySelectorAll('[data-abrir-barra]').forEach((boton) => {
