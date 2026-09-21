@@ -72,7 +72,7 @@ final class PracticeStatusCalculator
 
     public static function calculateForEvaluation(PracticeEvaluation $evaluation): string
     {
-        $evaluation->loadMissing(['criterionChecks.practiceCriterion', 'practice.evidences.verifications']);
+        $evaluation->load('criterionChecks.practiceCriterion');
 
         $criteriosData = [];
         foreach ($evaluation->criterionChecks as $check) {
@@ -80,22 +80,34 @@ final class PracticeStatusCalculator
                 continue;
             }
 
+            $criterion = $check->practiceCriterion;
+
+            $isMandatory = (bool) (
+                $criterion->required
+                ?? $criterion->obligatorio
+                ?? $criterion->is_mandatory
+                ?? true
+            );
+
             $criteriosData[] = [
                 'cumplido' => $check->status === CriterionCheck::STATUS_CUMPLE,
-                'obligatorio' => (bool) ($check->practiceCriterion->obligatorio ?? $check->practiceCriterion->is_mandatory ?? true),
+                'obligatorio' => $isMandatory,
                 'evaluado' => $check->status !== CriterionCheck::STATUS_PENDIENTE,
             ];
         }
 
         $evidenciasData = [];
-        $evidences = $evaluation->practice->evidences ?? $evaluation->practice->evidencias ?? null;
-        if ($evidences) {
-            foreach ($evidences as $evidence) {
-                $verifications = $evidence->verifications ?? $evidence->verificaciones ?? collect();
-                $lastVerif = $verifications->sortByDesc('id')->first();
-                $evidenciasData[] = [
-                    'verificada' => $lastVerif && strtolower((string) ($lastVerif->resultadoVerificacion ?? $lastVerif->result ?? '')) === 'aprobada',
-                ];
+        if (method_exists($evaluation->practice, 'evidences')) {
+            $evaluation->practice->loadMissing('evidences.verifications');
+            $evidences = $evaluation->practice->evidences;
+            if ($evidences) {
+                foreach ($evidences as $evidence) {
+                    $verifications = $evidence->verifications ?? collect();
+                    $lastVerif = $verifications->sortByDesc('id')->first();
+                    $evidenciasData[] = [
+                        'verificada' => $lastVerif && strtolower((string) ($lastVerif->resultadoVerificacion ?? $lastVerif->result ?? '')) === 'aprobada',
+                    ];
+                }
             }
         }
 
