@@ -9,6 +9,7 @@ use App\Livewire\Users\UserManagement;
 use App\Models\User;
 use App\Support\Modulos;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\CriterioController;
 
 Route::view('/', 'welcome');
 
@@ -49,5 +50,7 @@ foreach (Modulos::pendientes() as $modulo) {
         ->middleware(['auth', 'can:'.$modulo['capacidad']])
         ->name($modulo['ruta']);
 }
+// HU-09: Administrar Criterios de Evaluación
+Route::resource('criterios', CriterioController::class);
 
 require __DIR__.'/auth.php';
