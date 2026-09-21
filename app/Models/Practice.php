@@ -66,4 +66,12 @@ class Practice extends Model
     {
         return $this->hasMany(PracticeCriterion::class)->orderBy('orden')->orderBy('code');
     }
+
+    /**
+     * @return BelongsToMany<Evidence, $this>
+     */
+    public function evidences(): BelongsToMany
+    {
+        return $this->belongsToMany(Evidence::class, 'evidence_practice')->withTimestamps();
+    }
 }

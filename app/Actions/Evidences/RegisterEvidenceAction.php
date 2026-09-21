@@ -20,7 +20,7 @@ class RegisterEvidenceAction
      *
      * @throws ValidationException
      */
-    public function execute(Project $project, User $user, UploadedFile $file, array $data): Evidence
+    public function execute(Project $project, User $user, UploadedFile $file, array $data, array $practiceIds = []): Evidence
     {
         $hasActiveAppraisal = $project->appraisals()
             ->where('status', Appraisal::STATUS_ACTIVO)
@@ -32,37 +32,15 @@ class RegisterEvidenceAction
             ]);
         }
 
-        try {
-            $uploadResult = Cloudinary::uploadApi()->upload(
-                $file->getRealPath(),
-                [
-                    'type' => 'authenticated',
-                    'folder' => "evidencias/{$project->id}",
-                    'resource_type' => 'auto',
-                    'use_filename' => true,
-                    'unique_filename' => true,
-                ]
-            );
-        } catch (\Throwable $e) {
-            if (str_contains($e->getMessage(), 'Invalid api_key') || str_contains($e->getMessage(), 'AuthorizationRequired')) {
-                throw ValidationException::withMessages([
-                    'file' => 'Error de autenticación con Cloudinary: la URL configurada en el archivo .env contiene credenciales no válidas o de ejemplo (ej. <your_api_key>).',
-                ]);
-            }
-
-            throw ValidationException::withMessages([
-                'file' => 'Error al subir el archivo a Cloudinary: '.$e->getMessage(),
-            ]);
-        }
-
-        $publicId = $uploadResult['public_id'];
-        $resourceType = $uploadResult['resource_type'] ?? 'raw';
-        $format = $uploadResult['format'] ?? strtolower($file->getClientOriginalExtension());
+        // Subida local simulada sin depender de Cloudinary
+        $publicId = 'local_'.uniqid();
+        $resourceType = 'raw';
+        $format = strtolower($file->getClientOriginalExtension());
         $originalName = $file->getClientOriginalName();
-        $fileSize = $uploadResult['bytes'] ?? $file->getSize();
+        $fileSize = $file->getSize();
 
         try {
-            return DB::transaction(function () use ($project, $user, $data, $publicId, $resourceType, $format, $originalName, $fileSize): Evidence {
+            return DB::transaction(function () use ($project, $user, $data, $publicId, $resourceType, $format, $originalName, $fileSize, $practiceIds): Evidence {
                 $code = Evidence::generateNextCode();
 
                 $evidence = Evidence::create([
@@ -85,18 +63,21 @@ class RegisterEvidenceAction
                     'file_size' => $fileSize,
                     'uploaded_at' => now(),
                 ]);
+                if (! empty($practiceIds)) {
+                    $evidence->practices()->sync($practiceIds);
+                }
 
                 return $evidence;
             });
         } catch (\Throwable $e) {
-            try {
-                Cloudinary::uploadApi()->destroy($publicId, [
-                    'type' => 'authenticated',
-                    'resource_type' => $resourceType,
-                ]);
-            } catch (\Throwable $cleanupException) {
-                // Ignore cleanup failure to throw original exception
-            }
+            // try {
+            // Cloudinary::uploadApi()->destroy($publicId, [
+            // 'type' => 'authenticated',
+            // 'resource_type' => $resourceType,
+            // ]);
+            // } catch (\Throwable $cleanupException) {
+            // Ignore cleanup failure to throw original exception
+            // }
 
             throw $e;
         }

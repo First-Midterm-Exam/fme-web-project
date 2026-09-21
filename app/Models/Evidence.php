@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 
@@ -106,5 +107,13 @@ class Evidence extends Model
         $number = (int) substr($latestCode, 3) + 1;
 
         return sprintf('EV-%04d', $number);
+    }
+
+    /**
+     * @return BelongsToMany<Practice, $this>
+     */
+    public function practices(): BelongsToMany
+    {
+        return $this->belongsToMany(Practice::class, 'evidence_practice')->withTimestamps();
     }
 }
