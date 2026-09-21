@@ -18,10 +18,6 @@ class ProjectManagement extends Component
 
     protected string $paginationTheme = 'bootstrap';
 
-    // -------------------------------------------------------------------------
-    // Form state — create / edit
-    // -------------------------------------------------------------------------
-
     public ?int $projectId = null;
 
     public string $name = '';
@@ -34,19 +30,11 @@ class ProjectManagement extends Component
 
     public bool $isEditing = false;
 
-    // -------------------------------------------------------------------------
-    // Members modal state
-    // -------------------------------------------------------------------------
-
     public ?int $membersProjectId = null;
 
     public ?int $selectedUserId = null;
 
     public bool $showMembersModal = false;
-
-    // -------------------------------------------------------------------------
-    // Search & Filters
-    // -------------------------------------------------------------------------
 
     public string $search = '';
 
@@ -59,10 +47,6 @@ class ProjectManagement extends Component
         'search' => ['except' => ''],
         'statusFilter' => ['except' => 'all'],
     ];
-
-    // -------------------------------------------------------------------------
-    // Lifecycle
-    // -------------------------------------------------------------------------
 
     public function mount(): void
     {
@@ -84,10 +68,6 @@ class ProjectManagement extends Component
         $this->statusFilter = $status;
         $this->resetPage();
     }
-
-    // -------------------------------------------------------------------------
-    // Create / Edit
-    // -------------------------------------------------------------------------
 
     public function openCreateModal(): void
     {
@@ -159,10 +139,6 @@ class ProjectManagement extends Component
         $this->closeFormModal();
     }
 
-    // -------------------------------------------------------------------------
-    // Close project
-    // -------------------------------------------------------------------------
-
     public function closeProject(int $id): void
     {
         $project = Project::findOrFail($id);
@@ -172,10 +148,6 @@ class ProjectManagement extends Component
 
         session()->flash('message', "El proyecto \"{$project->name}\" ha sido cerrado.");
     }
-
-    // -------------------------------------------------------------------------
-    // Members management
-    // -------------------------------------------------------------------------
 
     public function openMembersModal(int $id): void
     {
@@ -227,10 +199,6 @@ class ProjectManagement extends Component
         session()->flash('membersMessage', 'Integrante eliminado del proyecto.');
     }
 
-    // -------------------------------------------------------------------------
-    // Render
-    // -------------------------------------------------------------------------
-
     public function render(): View
     {
         $this->authorize('viewAny', Project::class);
@@ -271,10 +239,6 @@ class ProjectManagement extends Component
             'statusCounts' => $statusCounts,
         ])->layout('layouts.app');
     }
-
-    // -------------------------------------------------------------------------
-    // Helpers
-    // -------------------------------------------------------------------------
 
     private function resetFormFields(): void
     {

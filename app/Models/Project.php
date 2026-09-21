@@ -36,13 +36,7 @@ class Project extends Model
         ];
     }
 
-    // -------------------------------------------------------------------------
-    // Relations
-    // -------------------------------------------------------------------------
-
     /**
-     * Users assigned to this project.
-     *
      * @return BelongsToMany<User, $this>
      */
     public function users(): BelongsToMany
@@ -51,8 +45,6 @@ class Project extends Model
     }
 
     /**
-     * Appraisals evaluated on this project.
-     *
      * @return HasMany<Appraisal, $this>
      */
     public function appraisals(): HasMany
@@ -60,16 +52,7 @@ class Project extends Model
         return $this->hasMany(Appraisal::class);
     }
 
-    // -------------------------------------------------------------------------
-    // Scopes
-    // -------------------------------------------------------------------------
-
     /**
-     * Filter projects visible to the given user (RN-07).
-     *
-     * - Administrador and Gestor de Procesos: all projects.
-     * - Jefe de Proyecto and Colaborador: only projects they are assigned to.
-     *
      * @param  Builder<Project>  $query
      */
     public function scopeVisibleFor(Builder $query, User $user): void
@@ -84,18 +67,12 @@ class Project extends Model
     }
 
     /**
-     * Filter only active projects.
-     *
      * @param  Builder<Project>  $query
      */
     public function scopeActive(Builder $query): void
     {
         $query->where('status', 'activo');
     }
-
-    // -------------------------------------------------------------------------
-    // Helpers
-    // -------------------------------------------------------------------------
 
     public function isActive(): bool
     {

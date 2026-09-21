@@ -1,5 +1,4 @@
 <div>
-    {{-- Header / Breadcrumb --}}
     <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-3">
         <div>
             <nav aria-label="breadcrumb">
@@ -37,7 +36,6 @@
         </div>
     </div>
 
-    {{-- Metrics Cards --}}
     <div class="row g-3 mb-4">
         <div class="col-sm-6 col-lg-3">
             <div class="card bg-dark text-white border-secondary shadow-sm">
@@ -75,7 +73,6 @@
         </div>
     </div>
 
-    {{-- Filters Card --}}
     <div class="card bg-dark text-white border-secondary shadow-sm mb-4">
         <div class="card-body py-3">
             <div class="row g-3 align-items-end">
@@ -96,10 +93,10 @@
                 </div>
 
                 <div class="col-md-4">
-                    <label for="filter-assessment-status" class="form-label text-secondary small mb-1">
+                    <label for="filter-evaluation-status" class="form-label text-secondary small mb-1">
                         <i class="bi bi-tag me-1"></i>Filtrar por Estado:
                     </label>
-                    <select id="filter-assessment-status"
+                    <select id="filter-evaluation-status"
                             wire:model.live="statusFilter"
                             class="form-select form-select-sm bg-dark text-white border-secondary">
                         <option value="all">— Todos los Estados —</option>
@@ -122,7 +119,6 @@
         </div>
     </div>
 
-    {{-- Practices List Grouped by Practice Area --}}
     @if ($totalScopePractices === 0)
         <div class="card bg-dark text-white border-secondary shadow-sm text-center py-5">
             <div class="card-body">
@@ -178,10 +174,10 @@
                         <tbody>
                             @foreach ($practicesInArea as $practice)
                                 @php
-                                    $assessment = $practice->assessments->first();
-                                    $status = $assessment?->status ?? App\Models\PracticeAssessment::STATUS_NO_EVALUADA;
-                                    $badgeColor = App\Models\PracticeAssessment::statusBadgeColor($status);
-                                    $percentage = $this->getCompliancePercentage($status);
+                                    $evaluation = $practice->evaluations->first();
+                                    $status = $evaluation?->status ?? App\Models\PracticeEvaluation::STATUS_NO_EVALUADA;
+                                    $badgeColor = App\Models\PracticeEvaluation::statusBadgeColor($status);
+                                    $percentage = $this->getCompliancePercentage($evaluation);
                                 @endphp
                                 <tr class="border-secondary">
                                     <td>
@@ -204,21 +200,32 @@
                                         </span>
                                     </td>
                                     <td class="text-center">
-                                        @if ($percentage === '0%')
-                                            <span class="badge bg-secondary bg-opacity-50 text-white font-monospace">{{ $percentage }}</span>
-                                        @else
-                                            <span class="badge bg-secondary bg-opacity-25 text-warning font-monospace small" title="Cálculo detallado pendiente de HU-09/HU-10">
-                                                {{ $percentage }}
-                                            </span>
-                                        @endif
+                                        <span class="badge {{ $percentage === '100%' ? 'bg-success' : 'bg-secondary bg-opacity-50 text-white' }} font-monospace">{{ $percentage }}</span>
                                     </td>
                                     <td class="text-end">
-                                        <button type="button"
-                                                wire:click="openDetailModal({{ $practice->id }})"
-                                                class="btn btn-sm btn-outline-info"
-                                                title="Ver criterios, observaciones y evidencias">
-                                            <i class="bi bi-eye me-1"></i>Ver detalle
-                                        </button>
+                                        <div class="btn-group btn-group-sm" role="group">
+                                            <button type="button"
+                                                    wire:click="openDetailModal({{ $practice->id }})"
+                                                    class="btn btn-outline-info"
+                                                    title="Ver criterios, observaciones y evidencias">
+                                                <i class="bi bi-eye"></i>
+                                            </button>
+                                            @can('evaluar-cumplimiento')
+                                                <a href="{{ route('criterios.index', [$appraisal->id, $practice->id]) }}"
+                                                   class="btn btn-outline-light"
+                                                   title="Administrar los criterios de esta práctica">
+                                                    <i class="bi bi-rulers"></i>
+                                                </a>
+                                            @endcan
+                                            @can('evaluate', $appraisal)
+                                                <a href="{{ route('appraisals.practices.checklist', [$appraisal->id, $practice->id]) }}"
+                                                   class="btn btn-outline-primary"
+                                                   wire:navigate
+                                                   title="Evaluar criterio por criterio">
+                                                    <i class="bi bi-ui-checks me-1"></i>Evaluar
+                                                </a>
+                                            @endcan
+                                        </div>
                                     </td>
                                 </tr>
                             @endforeach
@@ -229,13 +236,12 @@
         @endforeach
     @endif
 
-    {{-- Practice Detail Modal (Strictly Read-Only) --}}
     @if ($showDetailModal && $selectedPractice)
         @php
-            $modalAssessment = $selectedPractice->assessments->first();
-            $modalStatus = $modalAssessment?->status ?? App\Models\PracticeAssessment::STATUS_NO_EVALUADA;
-            $modalBadgeColor = App\Models\PracticeAssessment::statusBadgeColor($modalStatus);
-            $modalPercentage = $this->getCompliancePercentage($modalStatus);
+            $modalEvaluation = $selectedPractice->evaluations->first();
+            $modalStatus = $modalEvaluation?->status ?? App\Models\PracticeEvaluation::STATUS_NO_EVALUADA;
+            $modalBadgeColor = App\Models\PracticeEvaluation::statusBadgeColor($modalStatus);
+            $modalPercentage = $this->getCompliancePercentage($modalEvaluation);
         @endphp
         <div class="modal fade show d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.75);" aria-modal="true" role="dialog">
             <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
@@ -254,7 +260,6 @@
                     </div>
 
                     <div class="modal-body py-3">
-                        {{-- Meta Information Cards --}}
                         <div class="row g-2 mb-4">
                             <div class="col-sm-4">
                                 <div class="p-2 bg-secondary bg-opacity-10 rounded border border-secondary text-center">
@@ -276,7 +281,6 @@
                             </div>
                         </div>
 
-                        {{-- Section: Criterios de Aceptación (HU-07) --}}
                         <div class="mb-4">
                             <h6 class="fw-bold text-info mb-2">
                                 <i class="bi bi-check2-square me-2"></i>Criterios de Aceptación CMMI V3.0
@@ -302,7 +306,6 @@
                             @endif
                         </div>
 
-                        {{-- Section: Observaciones --}}
                         <div class="mb-4">
                             <h6 class="fw-bold text-info mb-2">
                                 <i class="bi bi-chat-left-text me-2"></i>Observaciones de la Evaluación
@@ -312,7 +315,6 @@
                             </div>
                         </div>
 
-                        {{-- Section: Evidencias Asociadas --}}
                         <div class="mb-2">
                             <h6 class="fw-bold text-info mb-2">
                                 <i class="bi bi-paperclip me-2"></i>Evidencias Asociadas
@@ -320,12 +322,24 @@
                             <div class="p-3 bg-secondary bg-opacity-10 rounded border border-secondary text-secondary small text-center">
                                 <i class="bi bi-folder-x fs-3 d-block mb-1 text-secondary"></i>
                                 <span>No existen evidencias asociadas.</span>
-                                <div class="fst-italic mt-1">El módulo de gestión de evidencias será integrado en HU-12.</div>
                             </div>
                         </div>
                     </div>
 
                     <div class="modal-footer border-secondary">
+                        @can('evaluar-cumplimiento')
+                            <a href="{{ route('criterios.index', [$appraisal->id, $selectedPractice->id]) }}"
+                               class="btn btn-outline-light btn-sm">
+                                <i class="bi bi-rulers me-1"></i>Administrar criterios
+                            </a>
+                        @endcan
+                        @can('evaluate', $appraisal)
+                            <a href="{{ route('appraisals.practices.checklist', [$appraisal->id, $selectedPractice->id]) }}"
+                               class="btn btn-primary btn-sm"
+                               wire:navigate>
+                                <i class="bi bi-ui-checks me-1"></i>Evaluar criterios
+                            </a>
+                        @endcan
                         <button type="button" class="btn btn-secondary btn-sm" wire:click="closeDetailModal">
                             Cerrar
                         </button>

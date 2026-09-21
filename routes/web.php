@@ -1,15 +1,16 @@
 <?php
 
+use App\Http\Controllers\CriterioController;
 use App\Livewire\Appraisals\AppraisalManagement;
 use App\Livewire\Appraisals\AppraisalPracticeList;
 use App\Livewire\Appraisals\AppraisalScopeSelection;
+use App\Livewire\Appraisals\PracticeChecklist;
 use App\Livewire\Projects\ProjectDetail;
 use App\Livewire\Projects\ProjectManagement;
 use App\Livewire\Users\UserManagement;
 use App\Models\User;
 use App\Support\Modulos;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\CriterioController;
 
 Route::view('/', 'welcome');
 
@@ -45,12 +46,26 @@ Route::get('appraisals/{appraisal}/practicas', AppraisalPracticeList::class)
     ->middleware(['auth'])
     ->name('appraisals.practices');
 
+Route::get('appraisals/{appraisal}/practicas/{practice}/checklist', PracticeChecklist::class)
+    ->middleware(['auth'])
+    ->name('appraisals.practices.checklist');
+
 foreach (Modulos::pendientes() as $modulo) {
     Route::view($modulo['uri'], 'modulos.index', ['modulo' => $modulo])
         ->middleware(['auth', 'can:'.$modulo['capacidad']])
         ->name($modulo['ruta']);
 }
-// HU-09: Administrar Criterios de Evaluación
-Route::resource('criterios', CriterioController::class);
+Route::middleware(['auth', 'can:evaluar-cumplimiento'])
+    ->prefix('appraisals/{appraisal}/practicas/{practice}/criterios')
+    ->name('criterios.')
+    ->controller(CriterioController::class)
+    ->group(function () {
+        Route::get('/', 'index')->name('index');
+        Route::get('nuevo', 'create')->name('create');
+        Route::post('/', 'store')->name('store');
+        Route::get('{criterio}/editar', 'edit')->name('edit');
+        Route::put('{criterio}', 'update')->name('update');
+        Route::delete('{criterio}', 'destroy')->name('destroy');
+    });
 
 require __DIR__.'/auth.php';

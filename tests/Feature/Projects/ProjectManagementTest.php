@@ -12,10 +12,6 @@ beforeEach(function () {
     $this->seed(RoleSeeder::class);
 });
 
-// =============================================================================
-// a) Admin: crear proyecto, asignar integrante, cerrar y verificar solo lectura
-// =============================================================================
-
 test('admin can create a project and it appears in the listing', function () {
     $admin = User::factory()->administrador()->create();
 
@@ -49,7 +45,6 @@ test('admin can assign and remove a member from a project', function () {
 
     $this->actingAs($admin);
 
-    // Assign
     Livewire::test(ProjectManagement::class)
         ->call('openMembersModal', $project->id)
         ->set('selectedUserId', $member->id)
@@ -60,7 +55,6 @@ test('admin can assign and remove a member from a project', function () {
         'user_id' => $member->id,
     ]);
 
-    // Remove
     Livewire::test(ProjectManagement::class)
         ->call('openMembersModal', $project->id)
         ->call('removeMember', $member->id);
@@ -90,15 +84,10 @@ test('admin can close a project and it becomes read only', function () {
     expect($project->status)->toBe('cerrado');
     expect($project->isActive())->toBeFalse();
 
-    // Verify it cannot be edited when closed
     $this->assertFalse((new ProjectPolicy)->update($admin, $project));
     $this->assertFalse((new ProjectPolicy)->manageMembers($admin, $project));
     $this->assertFalse((new ProjectPolicy)->close($admin, $project));
 });
-
-// =============================================================================
-// b) Non-admin receives 403 when trying to create / edit / close
-// =============================================================================
 
 test('project manager cannot create a project and receives 403', function () {
     $pm = User::factory()->jefeProyecto()->create();
@@ -137,10 +126,6 @@ test('process manager cannot create a project and receives 403', function () {
         ->assertForbidden();
 });
 
-// =============================================================================
-// c) Project Manager sees only assigned projects
-// =============================================================================
-
 test('project manager only sees projects they are assigned to in the listing', function () {
     $admin = User::factory()->administrador()->create();
     $pm = User::factory()->jefeProyecto()->create();
@@ -169,10 +154,6 @@ test('project manager only sees projects they are assigned to in the listing', f
         ->and($visible)->not->toContain($otherProject->id);
 });
 
-// =============================================================================
-// d) Project Manager receives 403 on direct URL access to unassigned project
-// =============================================================================
-
 test('project manager receives 403 when accessing unassigned project detail directly', function () {
     $pm = User::factory()->jefeProyecto()->create();
 
@@ -183,7 +164,6 @@ test('project manager receives 403 when accessing unassigned project detail dire
         'status' => 'activo',
     ]);
 
-    // PM is NOT assigned to this project
     $this->actingAs($pm);
 
     Livewire::test(ProjectDetail::class, ['project' => $project])
@@ -206,10 +186,6 @@ test('contributor receives 403 when accessing unassigned project detail directly
         ->assertForbidden();
 });
 
-// =============================================================================
-// e) Process Manager sees all projects but cannot edit
-// =============================================================================
-
 test('process manager sees all projects in the listing', function () {
     $processMgr = User::factory()->gestorProcesos()->create();
 
@@ -227,7 +203,6 @@ test('process manager sees all projects in the listing', function () {
         'status' => 'activo',
     ]);
 
-    // Process Manager is NOT assigned to either project
     $this->actingAs($processMgr);
 
     $visible = Project::visibleFor($processMgr)->pluck('id');

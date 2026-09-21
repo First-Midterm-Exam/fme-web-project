@@ -9,16 +9,6 @@ use Illuminate\Database\Seeder;
 
 class CmmiCatalogSeeder extends Seeder
 {
-    /**
-     * Run the database seeds.
-     *
-     * IMPORTANTE / DOCUMENTACIÓN:
-     * Este seeder contiene un conjunto de datos de ejemplo representativo y estructurado
-     * del catálogo CMMI V3.0 (áreas, prácticas y criterios de aceptación) para propósitos
-     * de prueba, desarrollo y evaluación en el sistema.
-     * No constituye el catálogo oficial completo con copyright de ISACA / CMMI Institute.
-     * La definición final de criterios oficiales queda sujeta a revisión del Product Owner.
-     */
     public function run(): void
     {
         $catalog = [

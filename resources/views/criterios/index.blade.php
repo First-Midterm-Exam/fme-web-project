@@ -1,82 +1,102 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HU-09: Administrar Criterios</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-</head>
-<body class="bg-light py-4">
-<div class="container">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2>Criterios de Evaluación</h2>
-        <a href="{{ route('criterios.create', ['practica_id' => $practicaId ?? 1]) }}" class="btn btn-primary">
-            + Nuevo Criterio
-        </a>
+<x-app-layout>
+    <x-slot name="header">Criterios de la Práctica</x-slot>
+
+    <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-3">
+        <div>
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb mb-1">
+                    <li class="breadcrumb-item"><a href="{{ route('proyectos.show', $appraisal->project_id) }}" class="text-decoration-none text-info">{{ $appraisal->project->name }}</a></li>
+                    <li class="breadcrumb-item"><a href="{{ route('appraisals.practices', $appraisal->id) }}" class="text-decoration-none text-info">{{ $appraisal->name }}</a></li>
+                    <li class="breadcrumb-item active text-white" aria-current="page">{{ $practice->code }}</li>
+                    <li class="breadcrumb-item active text-secondary" aria-current="page">Criterios</li>
+                </ol>
+            </nav>
+            <h1 class="h3 text-white fw-bold mb-1">
+                <i class="bi bi-rulers me-2 text-info"></i>Criterios de Evaluación
+            </h1>
+            <div class="d-flex flex-wrap align-items-center gap-2 text-secondary small">
+                <span><strong class="text-white">{{ $practice->code }}</strong> — {{ $practice->name }}</span>
+                <span>•</span>
+                <span><strong class="text-white">Nivel:</strong> {{ $practice->level }}</span>
+            </div>
+        </div>
+
+        <div class="d-flex gap-2">
+            <a href="{{ route('appraisals.practices.checklist', [$appraisal->id, $practice->id]) }}" class="btn btn-outline-primary btn-sm">
+                <i class="bi bi-ui-checks me-1"></i>Ir al Checklist
+            </a>
+            <a href="{{ route('criterios.create', [$appraisal, $practice]) }}" class="btn btn-primary btn-sm">
+                <i class="bi bi-plus-lg me-1"></i>Nuevo Criterio
+            </a>
+        </div>
     </div>
 
     @if(session('success'))
         <div class="alert alert-success alert-dismissible fade show" role="alert">
-            {{ session('success') }}
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            <i class="bi bi-check-circle-fill me-2"></i>{{ session('success') }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Cerrar"></button>
         </div>
     @endif
 
-    <div class="card mb-4">
-        <div class="card-body">
-            <form method="GET" action="{{ route('criterios.index') }}" class="row g-3 align-items-center">
-                <div class="col-auto">
-                    <label for="practica_id" class="col-form-label fw-bold">Filtrar por Práctica (ID):</label>
-                </div>
-                <div class="col-auto">
-                    <input type="number" name="practica_id" id="practica_id" class="form-control" value="{{ $practicaId }}">
-                </div>
-                <div class="col-auto">
-                    <button type="submit" class="btn btn-secondary">Filtrar</button>
-                    <a href="{{ route('criterios.index') }}" class="btn btn-outline-secondary">Ver Todos</a>
-                </div>
-            </form>
+    <div class="card bg-dark text-white border-secondary shadow-sm">
+        <div class="card-header bg-dark border-secondary py-3 d-flex justify-content-between align-items-center">
+            <h2 class="h6 mb-0 fw-bold">
+                <i class="bi bi-list-check me-2 text-info"></i>Criterios definidos
+                <span class="badge bg-secondary bg-opacity-50 text-light ms-2">{{ $criterios->count() }}</span>
+            </h2>
+            <a href="{{ route('appraisals.practices', $appraisal->id) }}" class="btn btn-outline-secondary btn-sm">
+                <i class="bi bi-arrow-left me-1"></i>Volver a Prácticas
+            </a>
         </div>
-    </div>
 
-    <div class="card shadow-sm">
-        <div class="card-body p-0">
-            <table class="table table-hover table-striped mb-0">
-                <thead class="table-dark">
-                    <tr>
-                        <th>Orden</th>
-                        <th>Práctica ID</th>
-                        <th>Descripción</th>
-                        <th>Estado</th>
-                        <th class="text-end">Acciones</th>
+        <div class="table-responsive">
+            <table class="table table-dark table-hover align-middle mb-0">
+                <thead>
+                    <tr class="text-secondary small border-secondary">
+                        <th style="width: 8%;">Orden</th>
+                        <th style="width: 16%;">Código</th>
+                        <th style="width: 40%;">Descripción</th>
+                        <th class="text-center" style="width: 12%;">Obligatorio</th>
+                        <th class="text-center" style="width: 10%;">Estado</th>
+                        <th class="text-end" style="width: 14%;">Acciones</th>
                     </tr>
                 </thead>
                 <tbody>
                     @forelse($criterios as $criterio)
-                        <tr>
-                            <td><span class="badge bg-secondary">{{ $criterio->orden }}</span></td>
-                            <td>{{ $criterio->practica_id }}</td>
-                            <td>{{ $criterio->descripcion }}</td>
-                            <td>
-                                @if($criterio->estado)
-                                    <span class="badge bg-success">Activo</span>
-                                @else
-                                    <span class="badge bg-danger">Inactivo</span>
-                                @endif
+                        <tr class="border-secondary">
+                            <td><span class="badge bg-secondary bg-opacity-50">{{ $criterio->orden }}</span></td>
+                            <td><span class="font-monospace text-info">{{ $criterio->code }}</span></td>
+                            <td>{{ $criterio->description }}</td>
+                            <td class="text-center">
+                                <span class="badge {{ $criterio->required ? 'bg-primary' : 'bg-secondary' }}">
+                                    {{ $criterio->required ? 'Obligatorio' : 'Opcional' }}
+                                </span>
+                            </td>
+                            <td class="text-center">
+                                <span class="badge {{ $criterio->estado ? 'bg-success' : 'bg-danger' }}">
+                                    {{ $criterio->estado ? 'Activo' : 'Inactivo' }}
+                                </span>
                             </td>
                             <td class="text-end">
-                                <a href="{{ route('criterios.edit', $criterio) }}" class="btn btn-sm btn-warning">Editar</a>
-                                <form action="{{ route('criterios.destroy', $criterio) }}" method="POST" class="d-inline" onsubmit="return confirm('¿Está seguro de eliminar este criterio?')">
-                                    @csrf
-                                    @method('DELETE')
-                                    <button type="submit" class="btn btn-sm btn-danger">Eliminar</button>
-                                </form>
+                                <div class="btn-group btn-group-sm" role="group">
+                                    <a href="{{ route('criterios.edit', [$appraisal, $practice, $criterio]) }}" class="btn btn-outline-primary">
+                                        <i class="bi bi-pencil"></i>
+                                    </a>
+                                    <form action="{{ route('criterios.destroy', [$appraisal, $practice, $criterio]) }}" method="POST" onsubmit="return confirm('¿Está seguro de eliminar este criterio?')">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit" class="btn btn-outline-danger">
+                                            <i class="bi bi-trash"></i>
+                                        </button>
+                                    </form>
+                                </div>
                             </td>
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="5" class="text-center py-4 text-muted">
-                                No se encontraron criterios registrados para esta práctica.
+                            <td colspan="6" class="text-center py-5 text-secondary">
+                                <i class="bi bi-inbox fs-1 d-block mb-2"></i>
+                                Esta práctica aún no tiene criterios de evaluación definidos.
                             </td>
                         </tr>
                     @endforelse
@@ -84,7 +104,4 @@
             </table>
         </div>
     </div>
-</div>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-</body>
-</html>
+</x-app-layout>

@@ -5,8 +5,9 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
-class PracticeAssessment extends Model
+class PracticeEvaluation extends Model
 {
     use HasFactory;
 
@@ -25,8 +26,6 @@ class PracticeAssessment extends Model
     public const STATUS_NO_APLICA = 'No aplica';
 
     /**
-     * List of official statuses defined for appraisal practice evaluation.
-     *
      * @return array<int, string>
      */
     public static function statuses(): array
@@ -40,9 +39,6 @@ class PracticeAssessment extends Model
         ];
     }
 
-    /**
-     * Get badge color class for a given assessment status.
-     */
     public static function statusBadgeColor(string $status): string
     {
         return match ($status) {
@@ -64,8 +60,6 @@ class PracticeAssessment extends Model
     ];
 
     /**
-     * Appraisal where this assessment belongs.
-     *
      * @return BelongsTo<Appraisal, $this>
      */
     public function appraisal(): BelongsTo
@@ -74,12 +68,50 @@ class PracticeAssessment extends Model
     }
 
     /**
-     * Practice being assessed.
-     *
      * @return BelongsTo<Practice, $this>
      */
     public function practice(): BelongsTo
     {
         return $this->belongsTo(Practice::class);
+    }
+
+    /**
+     * @return HasMany<CriterionCheck, $this>
+     */
+    public function criterionChecks(): HasMany
+    {
+        return $this->hasMany(CriterionCheck::class);
+    }
+
+    public function compliancePercentage(): int
+    {
+        $applicable = $this->applicableCriteriaCount();
+
+        if ($applicable === 0) {
+            return 0;
+        }
+
+        return (int) round($this->metCriteriaCount() / $applicable * 100);
+    }
+
+    public function applicableCriteriaCount(): int
+    {
+        $notApplicable = $this->criterionChecks
+            ->where('status', CriterionCheck::STATUS_NO_APLICA)
+            ->count();
+
+        return max($this->activeCriteriaCount() - $notApplicable, 0);
+    }
+
+    public function metCriteriaCount(): int
+    {
+        return $this->criterionChecks
+            ->where('status', CriterionCheck::STATUS_CUMPLE)
+            ->count();
+    }
+
+    public function activeCriteriaCount(): int
+    {
+        return $this->practice->criteria->where('estado', true)->count();
     }
 }

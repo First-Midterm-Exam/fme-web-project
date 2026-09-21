@@ -19,10 +19,6 @@ class AppraisalManagement extends Component
 
     protected string $paginationTheme = 'bootstrap';
 
-    // -------------------------------------------------------------------------
-    // Form state
-    // -------------------------------------------------------------------------
-
     public ?int $appraisalId = null;
 
     public ?int $projectId = null;
@@ -41,10 +37,6 @@ class AppraisalManagement extends Component
 
     public string $currentStatus = 'borrador';
 
-    // -------------------------------------------------------------------------
-    // Search & Filters
-    // -------------------------------------------------------------------------
-
     public string $search = '';
 
     public string $statusFilter = 'all';
@@ -56,10 +48,6 @@ class AppraisalManagement extends Component
         'search' => ['except' => ''],
         'statusFilter' => ['except' => 'all'],
     ];
-
-    // -------------------------------------------------------------------------
-    // Lifecycle
-    // -------------------------------------------------------------------------
 
     public function mount(): void
     {
@@ -81,10 +69,6 @@ class AppraisalManagement extends Component
         $this->statusFilter = $status;
         $this->resetPage();
     }
-
-    // -------------------------------------------------------------------------
-    // Create / Edit
-    // -------------------------------------------------------------------------
 
     public function openCreateModal(): void
     {
@@ -133,7 +117,6 @@ class AppraisalManagement extends Component
             $appraisal = Appraisal::with('project')->findOrFail($this->appraisalId);
             $this->authorize('update', $appraisal);
 
-            // Server-side validation of project immutability
             $stateService->validateProjectChange($appraisal, (int) $this->projectId);
 
             $appraisal->update([
@@ -148,7 +131,6 @@ class AppraisalManagement extends Component
         } else {
             $this->authorize('create', Appraisal::class);
 
-            // Validate project is active
             $stateService->validateCreation((int) $this->projectId);
 
             Appraisal::create([
@@ -165,10 +147,6 @@ class AppraisalManagement extends Component
 
         $this->closeFormModal();
     }
-
-    // -------------------------------------------------------------------------
-    // State Transitions
-    // -------------------------------------------------------------------------
 
     public function activateAppraisal(int $id, AppraisalStateService $stateService): void
     {
@@ -195,10 +173,6 @@ class AppraisalManagement extends Component
             session()->flash('error', $e->getMessage());
         }
     }
-
-    // -------------------------------------------------------------------------
-    // Render
-    // -------------------------------------------------------------------------
 
     public function render(): View
     {
@@ -227,7 +201,6 @@ class AppraisalManagement extends Component
             ->orderBy('id', 'desc')
             ->paginate(10);
 
-        // Active projects visible to the user for appraisal creation
         $availableProjects = Project::visibleFor($authUser)
             ->where('status', 'activo')
             ->orderBy('name')
@@ -239,10 +212,6 @@ class AppraisalManagement extends Component
             'statusCounts' => $statusCounts,
         ])->layout('layouts.app');
     }
-
-    // -------------------------------------------------------------------------
-    // Helpers
-    // -------------------------------------------------------------------------
 
     private function resetFormFields(): void
     {

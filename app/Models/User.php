@@ -83,8 +83,6 @@ class User extends Authenticatable implements MustVerifyEmail
     }
 
     /**
-     * Projects this user is assigned to.
-     *
      * @return BelongsToMany<Project, $this>
      */
     public function projects(): BelongsToMany
