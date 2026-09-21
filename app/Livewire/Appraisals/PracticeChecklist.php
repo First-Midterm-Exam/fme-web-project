@@ -7,7 +7,6 @@ use App\Models\CriterionCheck;
 use App\Models\Practice;
 use App\Models\PracticeCriterion;
 use App\Models\PracticeEvaluation;
-use App\Services\PracticeStatusCalculator;
 use Illuminate\Contracts\View\View;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Support\Collection;
@@ -194,7 +193,6 @@ class PracticeChecklist extends Component
                 ? (string) $mark->notes
                 : '';
         }
-        PracticeStatusCalculator::calculateForEvaluation($this->evaluation);
     }
 
     /**

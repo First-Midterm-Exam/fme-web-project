@@ -1,10 +1,12 @@
 <?php
 
 use App\Http\Controllers\CriterioController;
+use App\Http\Controllers\EvidenceDownloadController;
 use App\Livewire\Appraisals\AppraisalManagement;
 use App\Livewire\Appraisals\AppraisalPracticeList;
 use App\Livewire\Appraisals\AppraisalScopeSelection;
 use App\Livewire\Appraisals\PracticeChecklist;
+use App\Livewire\Evidences\EvidenceManagement;
 use App\Livewire\Projects\ProjectDetail;
 use App\Livewire\Projects\ProjectManagement;
 use App\Livewire\Users\UserManagement;
@@ -49,6 +51,13 @@ Route::get('appraisals/{appraisal}/practicas', AppraisalPracticeList::class)
 Route::get('appraisals/{appraisal}/practicas/{practice}/checklist', PracticeChecklist::class)
     ->middleware(['auth'])
     ->name('appraisals.practices.checklist');
+
+Route::get('evidencias', EvidenceManagement::class)
+    ->middleware(['auth', 'can:registrar-evidencia'])
+    ->name('evidencias.index');
+
+Route::get('evidencias/{evidence}/download', EvidenceDownloadController::class)
+    ->name('evidencias.download');
 
 foreach (Modulos::pendientes() as $modulo) {
     Route::view($modulo['uri'], 'modulos.index', ['modulo' => $modulo])
