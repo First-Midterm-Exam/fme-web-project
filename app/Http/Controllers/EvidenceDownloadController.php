@@ -3,13 +3,14 @@
 namespace App\Http\Controllers;
 
 use App\Models\Evidence;
+use App\Models\EvidenceVersion;
 use CloudinaryLabs\CloudinaryLaravel\Facades\Cloudinary;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Gate;
 
 class EvidenceDownloadController extends Controller
 {
-    public function __invoke(Evidence $evidence): RedirectResponse
+    public function __invoke(Evidence $evidence, ?EvidenceVersion $version = null): RedirectResponse
     {
         $user = auth()->user();
 
@@ -17,7 +18,7 @@ class EvidenceDownloadController extends Controller
             abort(403, 'Acceso denegado.');
         }
 
-        $version = $evidence->currentVersion;
+        $version ??= $evidence->currentVersion;
 
         if (! $version) {
             abort(404, 'No se encontró la versión del archivo.');

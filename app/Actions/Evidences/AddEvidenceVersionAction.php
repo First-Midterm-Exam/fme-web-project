@@ -4,54 +4,45 @@ namespace App\Actions\Evidences;
 
 use App\Models\Appraisal;
 use App\Models\Evidence;
-use App\Models\EvidenceStatus;
 use App\Models\EvidenceVersion;
-use App\Models\Project;
 use App\Models\User;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
 use Throwable;
 
-class RegisterEvidenceAction
+class AddEvidenceVersionAction
 {
     public function __construct(private readonly UploadEvidenceFileAction $uploader) {}
 
     /**
-     * @param  array{name: string, type: string, description?: string|null}  $data
-     * @param  array<int, int>  $practiceIds
-     *
      * @throws ValidationException
      */
-    public function execute(Project $project, User $user, UploadedFile $file, array $data, array $practiceIds = []): Evidence
+    public function execute(Evidence $evidence, User $user, UploadedFile $file): EvidenceVersion
     {
+        $project = $evidence->project;
+
         $hasActiveAppraisal = $project->appraisals()
             ->where('status', Appraisal::STATUS_ACTIVO)
             ->exists();
 
         if (! $hasActiveAppraisal) {
             throw ValidationException::withMessages([
-                'project_id' => 'El proyecto seleccionado no tiene un appraisal en curso (RN-10).',
+                'file' => 'El proyecto de la evidencia no tiene un appraisal en curso (RN-10).',
             ]);
         }
 
         $uploaded = $this->uploader->execute($project, $file);
 
         try {
-            return DB::transaction(function () use ($project, $user, $data, $uploaded, $practiceIds): Evidence {
-                $evidence = Evidence::create([
-                    'code' => Evidence::generateNextCode(),
-                    'project_id' => $project->id,
-                    'name' => $data['name'],
-                    'type' => $data['type'],
-                    'description' => $data['description'] ?? null,
-                    'status_id' => EvidenceStatus::REGISTRADA,
-                    'uploaded_by' => $user->id,
-                ]);
+            return DB::transaction(function () use ($evidence, $user, $uploaded): EvidenceVersion {
+                Evidence::whereKey($evidence->id)->lockForUpdate()->first();
 
-                EvidenceVersion::create([
+                $number = (int) EvidenceVersion::where('evidence_id', $evidence->id)->max('number') + 1;
+
+                $version = EvidenceVersion::create([
                     'evidence_id' => $evidence->id,
-                    'number' => 1,
+                    'number' => $number,
                     'file_public_id' => $uploaded['public_id'],
                     'file_url' => $uploaded['url'],
                     'file_resource_type' => $uploaded['resource_type'],
@@ -62,11 +53,9 @@ class RegisterEvidenceAction
                     'uploaded_at' => now(),
                 ]);
 
-                if ($practiceIds !== []) {
-                    $evidence->practices()->sync($practiceIds);
-                }
+                $evidence->touch();
 
-                return $evidence;
+                return $version;
             });
         } catch (Throwable $e) {
             $this->uploader->discard($uploaded);

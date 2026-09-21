@@ -100,12 +100,20 @@
                                     </span>
                                 </td>
                                 <td class="text-end">
-                                    <a href="{{ route('evidencias.download', $evidence) }}"
-                                       target="_blank"
-                                       class="btn btn-sm btn-outline-info"
-                                       title="Descargar archivo privado (link temporal 5 min)">
-                                        <i class="bi bi-download me-1"></i> Descargar
-                                    </a>
+                                    <div class="btn-group btn-group-sm" role="group">
+                                        <a href="{{ route('evidencias.show', $evidence) }}"
+                                           class="btn btn-outline-light"
+                                           wire:navigate
+                                           title="Ver detalle, historial y subir nueva versión">
+                                            <i class="bi bi-clock-history me-1"></i>v{{ $evidence->currentVersion?->number ?? 1 }}
+                                        </a>
+                                        <a href="{{ route('evidencias.download', $evidence) }}"
+                                           target="_blank"
+                                           class="btn btn-outline-info"
+                                           title="Descargar archivo privado (link temporal 5 min)">
+                                            <i class="bi bi-download me-1"></i> Descargar
+                                        </a>
+                                    </div>
                                 </td>
                             </tr>
                         @empty

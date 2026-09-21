@@ -167,11 +167,9 @@ test('un usuario sin sesion o sin permiso sobre ese proyecto recibe 403 al pedir
         'uploaded_at' => now(),
     ]);
 
-    // 1. Unauthenticated request -> expect 403 Forbidden (no redirect to login)
     $responseGuest = $this->get(route('evidencias.download', $evidence));
     $responseGuest->assertForbidden();
 
-    // 2. Authenticated user without project permission -> expect 403 Forbidden
     $this->actingAs($contributorOther);
     $responseUnauthorized = $this->get(route('evidencias.download', $evidence));
     $responseUnauthorized->assertForbidden();

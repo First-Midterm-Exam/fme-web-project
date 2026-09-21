@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Services;
 
 use App\Models\CriterionCheck;
+use App\Models\Evidence;
 use App\Models\PracticeEvaluation;
 
 final class PracticeStatusCalculator
@@ -72,44 +73,33 @@ final class PracticeStatusCalculator
 
     public static function calculateForEvaluation(PracticeEvaluation $evaluation): string
     {
-        $evaluation->load('criterionChecks.practiceCriterion');
+        $evaluation->load(['criterionChecks', 'practice.criteria', 'appraisal']);
+
+        $chequeos = $evaluation->criterionChecks->keyBy('practice_criterion_id');
 
         $criteriosData = [];
-        foreach ($evaluation->criterionChecks as $check) {
-            if ($check->status === CriterionCheck::STATUS_NO_APLICA) {
+        foreach ($evaluation->practice->criteria->where('estado', true) as $criterion) {
+            $check = $chequeos->get($criterion->id);
+            $status = $check instanceof CriterionCheck ? $check->status : CriterionCheck::STATUS_PENDIENTE;
+
+            if ($status === CriterionCheck::STATUS_NO_APLICA) {
                 continue;
             }
 
-            $criterion = $check->practiceCriterion;
-
-            $isMandatory = (bool) (
-                $criterion->required
-                ?? $criterion->obligatorio
-                ?? $criterion->is_mandatory
-                ?? true
-            );
-
             $criteriosData[] = [
-                'cumplido' => $check->status === CriterionCheck::STATUS_CUMPLE,
-                'obligatorio' => $isMandatory,
-                'evaluado' => $check->status !== CriterionCheck::STATUS_PENDIENTE,
+                'cumplido' => $status === CriterionCheck::STATUS_CUMPLE,
+                'obligatorio' => (bool) $criterion->required,
+                'evaluado' => $status !== CriterionCheck::STATUS_PENDIENTE,
             ];
         }
 
-        $evidenciasData = [];
-        if (method_exists($evaluation->practice, 'evidences')) {
-            $evaluation->practice->loadMissing('evidences.verifications');
-            $evidences = $evaluation->practice->evidences;
-            if ($evidences) {
-                foreach ($evidences as $evidence) {
-                    $verifications = $evidence->verifications ?? collect();
-                    $lastVerif = $verifications->sortByDesc('id')->first();
-                    $evidenciasData[] = [
-                        'verificada' => $lastVerif && strtolower((string) ($lastVerif->resultadoVerificacion ?? $lastVerif->result ?? '')) === 'aprobada',
-                    ];
-                }
-            }
-        }
+        $evidenciasData = $evaluation->practice->evidences()
+            ->where('evidences.project_id', $evaluation->appraisal->project_id)
+            ->with('status')
+            ->get()
+            ->map(fn (Evidence $evidence): array => ['estado' => $evidence->status->name])
+            ->values()
+            ->all();
 
         $nuevoEstado = self::calculate($criteriosData, $evidenciasData);
         $evaluation->update(['status' => $nuevoEstado]);
