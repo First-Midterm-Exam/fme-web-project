@@ -8,7 +8,11 @@ final class Capacidades
 {
     public const GESTIONAR_USUARIOS = 'gestionar-usuarios';
 
+    public const VER_PROYECTOS = 'ver-proyectos';
+
     public const ADMINISTRAR_PROYECTOS = 'administrar-proyectos';
+
+    public const VER_APPRAISALS = 'ver-appraisals';
 
     public const CONFIGURAR_APPRAISAL = 'configurar-appraisal';
 
@@ -26,7 +30,9 @@ final class Capacidades
 
     public const MAPA = [
         self::GESTIONAR_USUARIOS => [Rol::ADMINISTRADOR],
+        self::VER_PROYECTOS => [Rol::ADMINISTRADOR, Rol::GESTOR_PROCESOS, Rol::JEFE_PROYECTO, Rol::COLABORADOR],
         self::ADMINISTRAR_PROYECTOS => [Rol::ADMINISTRADOR],
+        self::VER_APPRAISALS => [Rol::ADMINISTRADOR, Rol::GESTOR_PROCESOS, Rol::JEFE_PROYECTO, Rol::COLABORADOR],
         self::CONFIGURAR_APPRAISAL => [Rol::ADMINISTRADOR],
         self::DEFINIR_ALCANCE => [Rol::GESTOR_PROCESOS],
         self::EVALUAR_CUMPLIMIENTO => [Rol::GESTOR_PROCESOS],

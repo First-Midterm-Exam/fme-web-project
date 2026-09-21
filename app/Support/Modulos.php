@@ -11,6 +11,36 @@ final class Modulos
     {
         return [
             [
+                'etiqueta' => 'Proyectos',
+                'icono' => 'bi-folder2-open',
+                'items' => [
+                    [
+                        'etiqueta' => 'Proyectos',
+                        'descripcion' => 'Proyectos de la empresa.',
+                        'icono' => 'bi-folder2-open',
+                        'uri' => 'proyectos',
+                        'ruta' => 'proyectos.index',
+                        'capacidad' => Capacidades::VER_PROYECTOS,
+                        'disponible' => true,
+                    ],
+                ],
+            ],
+            [
+                'etiqueta' => 'Appraisals',
+                'icono' => 'bi-clipboard-check',
+                'items' => [
+                    [
+                        'etiqueta' => 'Appraisals',
+                        'descripcion' => 'Evaluaciones CMMI sobre proyectos.',
+                        'icono' => 'bi-clipboard-check',
+                        'uri' => 'appraisals',
+                        'ruta' => 'appraisals.index',
+                        'capacidad' => Capacidades::VER_APPRAISALS,
+                        'disponible' => true,
+                    ],
+                ],
+            ],
+            [
                 'etiqueta' => 'Administración',
                 'icono' => 'bi-sliders',
                 'items' => [
@@ -22,24 +52,6 @@ final class Modulos
                         'ruta' => 'users.index',
                         'capacidad' => Capacidades::GESTIONAR_USUARIOS,
                         'disponible' => true,
-                    ],
-                    [
-                        'etiqueta' => 'Proyectos',
-                        'descripcion' => 'Proyectos de la empresa.',
-                        'icono' => 'bi-folder2-open',
-                        'uri' => 'proyectos',
-                        'ruta' => 'proyectos.index',
-                        'capacidad' => Capacidades::ADMINISTRAR_PROYECTOS,
-                        'disponible' => false,
-                    ],
-                    [
-                        'etiqueta' => 'Appraisals',
-                        'descripcion' => 'Dominio, nivel objetivo y fecha meta.',
-                        'icono' => 'bi-clipboard-check',
-                        'uri' => 'appraisals',
-                        'ruta' => 'appraisals.index',
-                        'capacidad' => Capacidades::CONFIGURAR_APPRAISAL,
-                        'disponible' => false,
                     ],
                 ],
             ],
