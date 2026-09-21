@@ -7,6 +7,7 @@ use App\Models\CriterionCheck;
 use App\Models\Practice;
 use App\Models\PracticeCriterion;
 use App\Models\PracticeEvaluation;
+use App\Services\PracticeStatusCalculator;
 use Illuminate\Contracts\View\View;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Support\Collection;
@@ -80,6 +81,7 @@ class PracticeChecklist extends Component
             ]
         );
 
+        PracticeStatusCalculator::calculateForEvaluation($this->evaluation);
         $this->loadMarks();
 
         session()->flash('message', 'El criterio fue marcado como "'.$status.'".');
@@ -109,6 +111,7 @@ class PracticeChecklist extends Component
             }
         });
 
+        PracticeStatusCalculator::calculateForEvaluation($this->evaluation);
         $this->loadMarks();
 
         session()->flash('message', 'Se marcaron todos los criterios como "'.$status.'".');

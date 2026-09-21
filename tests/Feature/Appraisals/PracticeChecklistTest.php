@@ -5,6 +5,8 @@ use App\Livewire\Appraisals\PracticeChecklist;
 use App\Models\Appraisal;
 use App\Models\AppraisalScope;
 use App\Models\CriterionCheck;
+use App\Models\Evidence;
+use App\Models\EvidenceStatus;
 use App\Models\Practice;
 use App\Models\PracticeCriterion;
 use App\Models\PracticeEvaluation;
@@ -270,19 +272,101 @@ test('an unknown status is rejected', function () {
     expect(CriterionCheck::count())->toBe(0);
 });
 
-test('marking criteria does not change the practice evaluation status', function () {
+function estadoDeLaPractica(Appraisal $appraisal, Practice $practice): string
+{
+    return PracticeEvaluation::where('appraisal_id', $appraisal->id)
+        ->where('practice_id', $practice->id)
+        ->value('status');
+}
+
+test('marking criteria recalculates the practice status', function (array $marcas, string $esperado) {
+    [$appraisal, $practice] = setupChecklistScenario();
+    $criterios = $practice->criteria->values();
+
+    $this->actingAs(User::factory()->gestorProcesos()->create());
+
+    $componente = Livewire::test(PracticeChecklist::class, ['appraisal' => $appraisal, 'practice' => $practice]);
+
+    foreach ($marcas as $indice => $estado) {
+        $componente->call('markCriterion', $criterios[$indice]->id, $estado);
+    }
+
+    expect(estadoDeLaPractica($appraisal, $practice))->toBe($esperado);
+})->with([
+    'un obligatorio cumplido y otro pendiente' => [[0 => CriterionCheck::STATUS_CUMPLE], PracticeEvaluation::STATUS_PARCIAL],
+    'todos los obligatorios cumplidos' => [[0 => CriterionCheck::STATUS_CUMPLE, 1 => CriterionCheck::STATUS_CUMPLE], PracticeEvaluation::STATUS_CUMPLE],
+    'ninguno cumplido' => [[0 => CriterionCheck::STATUS_NO_CUMPLE, 1 => CriterionCheck::STATUS_NO_CUMPLE], PracticeEvaluation::STATUS_NO_CUMPLE],
+    'uno cumplido y otro no cumplido' => [[0 => CriterionCheck::STATUS_CUMPLE, 1 => CriterionCheck::STATUS_NO_CUMPLE], PracticeEvaluation::STATUS_PARCIAL],
+    'uno cumplido y otro no aplica' => [[0 => CriterionCheck::STATUS_CUMPLE, 1 => CriterionCheck::STATUS_NO_APLICA], PracticeEvaluation::STATUS_CUMPLE],
+    'vuelto a pendiente' => [[0 => CriterionCheck::STATUS_CUMPLE, 1 => CriterionCheck::STATUS_PENDIENTE], PracticeEvaluation::STATUS_PARCIAL],
+]);
+
+test('marking every criterion at once recalculates the practice status', function () {
     [$appraisal, $practice] = setupChecklistScenario();
 
     $this->actingAs(User::factory()->gestorProcesos()->create());
 
     Livewire::test(PracticeChecklist::class, ['appraisal' => $appraisal, 'practice' => $practice])
+        ->call('markAll', CriterionCheck::STATUS_CUMPLE)
+        ->assertSee(PracticeEvaluation::STATUS_CUMPLE);
+
+    expect(estadoDeLaPractica($appraisal, $practice))->toBe(PracticeEvaluation::STATUS_CUMPLE);
+});
+
+test('inactive criteria do not count for the practice status', function () {
+    [$appraisal, $practice] = setupChecklistScenario();
+    [$primero, $segundo] = $practice->criteria->values()->all();
+    $segundo->update(['estado' => false]);
+
+    $this->actingAs(User::factory()->gestorProcesos()->create());
+
+    Livewire::test(PracticeChecklist::class, ['appraisal' => $appraisal, 'practice' => $practice])
+        ->call('markCriterion', $primero->id, CriterionCheck::STATUS_CUMPLE);
+
+    expect(estadoDeLaPractica($appraisal, $practice))->toBe(PracticeEvaluation::STATUS_CUMPLE);
+});
+
+test('only verified evidences of the appraisal project make the practice verified', function (bool $delMismoProyecto, string $esperado) {
+    [$appraisal, $practice, $project] = setupChecklistScenario();
+    $gestor = User::factory()->gestorProcesos()->create();
+    $verificada = EvidenceStatus::create(['name' => 'Verificada']);
+
+    $proyectoEvidencia = $delMismoProyecto ? $project : Project::create([
+        'name' => 'Otro proyecto',
+        'code' => 'P-OTRO',
+        'start_date' => '2026-01-01',
+        'status' => 'activo',
+    ]);
+
+    $evidencia = Evidence::create([
+        'code' => 'EV-0001',
+        'project_id' => $proyectoEvidencia->id,
+        'name' => 'Plan aprobado',
+        'type' => Evidence::TYPE_PLAN,
+        'status_id' => $verificada->id,
+        'uploaded_by' => $gestor->id,
+    ]);
+    $evidencia->practices()->attach($practice->id);
+
+    $this->actingAs($gestor);
+
+    Livewire::test(PracticeChecklist::class, ['appraisal' => $appraisal, 'practice' => $practice])
         ->call('markAll', CriterionCheck::STATUS_CUMPLE);
 
-    $evaluation = PracticeEvaluation::where('appraisal_id', $appraisal->id)
-        ->where('practice_id', $practice->id)
-        ->firstOrFail();
+    expect(estadoDeLaPractica($appraisal, $practice))->toBe($esperado);
+})->with([
+    'evidencia verificada del proyecto' => [true, PracticeEvaluation::STATUS_VERIFICADA],
+    'evidencia verificada de otro proyecto' => [false, PracticeEvaluation::STATUS_CUMPLE],
+]);
 
-    expect($evaluation->status)->toBe(PracticeEvaluation::STATUS_NO_EVALUADA);
+test('opening the checklist in read only mode does not change the practice status', function () {
+    [$appraisal, $practice] = setupChecklistScenario();
+
+    $this->actingAs(User::factory()->administrador()->create());
+
+    $this->get(route('appraisals.practices.checklist', [$appraisal->id, $practice->id]))->assertOk();
+
+    expect(estadoDeLaPractica($appraisal, $practice))->toBe(PracticeEvaluation::STATUS_NO_EVALUADA);
 });
 
 test('the practice list shows the real compliance percentage of the checklist', function () {

@@ -66,6 +66,11 @@ class EvidencePolicy
         return true;
     }
 
+    public function update(User $user, Evidence $evidence): bool
+    {
+        return $this->create($user, $evidence->project);
+    }
+
     public function download(User $user, Evidence $evidence): bool
     {
         return $this->view($user, $evidence);

@@ -180,12 +180,6 @@ class EvidenceManagement extends Component
             'types' => Evidence::TYPES,
             'availablePractices' => $availablePractices,
         ])->layout('layouts.app');
-
-        return view('livewire.evidences.evidence-management', [
-            'evidences' => $evidences,
-            'eligibleProjects' => $eligibleProjects,
-            'types' => Evidence::TYPES,
-        ])->layout('layouts.app');
     }
 
     private function resetFormFields(): void

@@ -6,6 +6,7 @@ use App\Livewire\Appraisals\AppraisalManagement;
 use App\Livewire\Appraisals\AppraisalPracticeList;
 use App\Livewire\Appraisals\AppraisalScopeSelection;
 use App\Livewire\Appraisals\PracticeChecklist;
+use App\Livewire\Evidences\EvidenceDetail;
 use App\Livewire\Evidences\EvidenceManagement;
 use App\Livewire\Projects\ProjectDetail;
 use App\Livewire\Projects\ProjectManagement;
@@ -56,8 +57,17 @@ Route::get('evidencias', EvidenceManagement::class)
     ->middleware(['auth', 'can:registrar-evidencia'])
     ->name('evidencias.index');
 
+Route::get('evidencias/{evidence}', EvidenceDetail::class)
+    ->middleware(['auth'])
+    ->whereNumber('evidence')
+    ->name('evidencias.show');
+
 Route::get('evidencias/{evidence}/download', EvidenceDownloadController::class)
     ->name('evidencias.download');
+
+Route::get('evidencias/{evidence}/versiones/{version}/download', EvidenceDownloadController::class)
+    ->scopeBindings()
+    ->name('evidencias.versions.download');
 
 foreach (Modulos::pendientes() as $modulo) {
     Route::view($modulo['uri'], 'modulos.index', ['modulo' => $modulo])
