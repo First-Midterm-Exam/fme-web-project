@@ -49,4 +49,35 @@ class User extends Authenticatable implements MustVerifyEmail
             'is_active' => 'boolean',
         ];
     }
+
+    public function rol(): ?Rol
+    {
+        $rol = $this->roles->first();
+
+        return $rol instanceof Rol ? $rol : null;
+    }
+
+    public function tieneRol(int ...$rolIds): bool
+    {
+        return $this->roles->whereIn('id', $rolIds)->isNotEmpty();
+    }
+
+    public function esAdministrador(): bool
+    {
+        return $this->tieneRol(Rol::ADMINISTRADOR);
+    }
+
+    public function etiquetaDeRol(): string
+    {
+        $rol = $this->rol();
+
+        return $rol instanceof Rol ? $rol->etiqueta() : 'Sin Rol';
+    }
+
+    public function colorDeRol(): string
+    {
+        $rol = $this->rol();
+
+        return $rol instanceof Rol ? $rol->color() : 'bg-secondary';
+    }
 }

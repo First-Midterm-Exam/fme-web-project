@@ -2,6 +2,7 @@
 
 namespace App\Livewire\Users;
 
+use App\Models\Rol;
 use App\Models\User;
 use Illuminate\Contracts\View\View;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
@@ -9,7 +10,6 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rule;
 use Livewire\Component;
 use Livewire\WithPagination;
-use Spatie\Permission\Models\Role;
 
 class UserManagement extends Component
 {
@@ -25,7 +25,7 @@ class UserManagement extends Component
 
     public string $password = '';
 
-    public string $role = 'Contributor';
+    public string $role = Rol::ETIQUETAS[Rol::COLABORADOR];
 
     public bool $is_active = true;
 
@@ -68,8 +68,9 @@ class UserManagement extends Component
         $this->name = $user->name;
         $this->email = $user->email;
         $this->password = '';
-        $firstRole = $user->roles->first();
-        $this->role = $firstRole instanceof Role ? $firstRole->name : 'Contributor';
+        $rol = $user->rol();
+
+        $this->role = $rol instanceof Rol ? $rol->name : Rol::ETIQUETAS[Rol::COLABORADOR];
         $this->is_active = $user->is_active;
         $this->isEditing = true;
         $this->showModal = true;
@@ -137,7 +138,7 @@ class UserManagement extends Component
     public function toggleStatus(int $id): void
     {
         $user = User::findOrFail($id);
-        $this->authorize('update', $user);
+        $this->authorize('delete', $user);
 
         $user->is_active = ! $user->is_active;
         $user->save();
@@ -160,12 +161,12 @@ class UserManagement extends Component
             ->orderBy('id', 'desc')
             ->paginate(10);
 
-        $roles = Role::pluck('name');
+        $roles = Rol::query()->orderBy('id')->get();
 
         return view('livewire.users.user-management', [
             'users' => $users,
             'roles' => $roles,
-        ])->layout('layouts.app');
+        ])->layout('layouts.app', ['header' => 'Gestión de Usuarios']);
     }
 
     private function resetInputFields(): void
@@ -174,7 +175,7 @@ class UserManagement extends Component
         $this->name = '';
         $this->email = '';
         $this->password = '';
-        $this->role = 'Contributor';
+        $this->role = Rol::ETIQUETAS[Rol::COLABORADOR];
         $this->is_active = true;
     }
 

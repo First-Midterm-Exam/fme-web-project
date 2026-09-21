@@ -1,14 +1,15 @@
-<div class="container py-4">
+<div>
     <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
-            <h2 class="h3 font-weight-bold text-white mb-1">Gestión de Usuarios</h2>
             <p class="text-secondary mb-0">Administración de acceso y asignación de roles para la plataforma CMMI de DIMA LTDA.</p>
         </div>
-        <div>
-            <button wire:click="openCreateModal" class="btn btn-primary d-flex align-items-center gap-2 fw-semibold">
-                <i class="bi bi-person-plus-fill"></i> Nuevo Usuario
-            </button>
-        </div>
+        @can('create', App\Models\User::class)
+            <div>
+                <button wire:click="openCreateModal" class="btn btn-primary d-flex align-items-center gap-2 fw-semibold">
+                    <i class="bi bi-person-plus-fill"></i> Nuevo Usuario
+                </button>
+            </div>
+        @endcan
     </div>
 
     @if (session()->has('message'))
@@ -48,16 +49,7 @@
                                 <td>{{ $user->name }}</td>
                                 <td>{{ $user->email }}</td>
                                 <td>
-                                    @php
-                                        $roleName = $user->roles->first()?->name ?? 'Sin Rol';
-                                        $badgeClass = match($roleName) {
-                                            'Administrador' => 'bg-danger',
-                                            'Process Manager / CMMI Manager' => 'bg-primary',
-                                            'Project Manager' => 'bg-info text-dark',
-                                            default => 'bg-secondary',
-                                        };
-                                    @endphp
-                                    <span class="badge {{ $badgeClass }} fs-6 fw-normal px-2 py-1">{{ $roleName }}</span>
+                                    <span class="badge {{ $user->colorDeRol() }} fs-6 fw-normal px-2 py-1">{{ $user->etiquetaDeRol() }}</span>
                                 </td>
                                 <td>
                                     @if ($user->is_active)
@@ -67,11 +59,13 @@
                                     @endif
                                 </td>
                                 <td class="text-end">
-                                    <button wire:click="openEditModal({{ $user->id }})" class="btn btn-sm btn-outline-primary me-1" title="Editar usuario">
-                                        <i class="bi bi-pencil"></i> Editar
-                                    </button>
+                                    @can('update', $user)
+                                        <button wire:click="openEditModal({{ $user->id }})" class="btn btn-sm btn-outline-primary me-1" title="Editar usuario">
+                                            <i class="bi bi-pencil"></i> Editar
+                                        </button>
+                                    @endcan
 
-                                    @if ($user->id !== auth()->id())
+                                    @can('delete', $user)
                                         <button wire:click="toggleStatus({{ $user->id }})" 
                                                 class="btn btn-sm {{ $user->is_active ? 'btn-outline-danger' : 'btn-outline-success' }}" 
                                                 title="{{ $user->is_active ? 'Dar de baja usuario' : 'Reactivar usuario' }}">
@@ -81,7 +75,7 @@
                                                 <i class="bi bi-person-check"></i> Reactivar
                                             @endif
                                         </button>
-                                    @endif
+                                    @endcan
                                 </td>
                             </tr>
                         @empty
@@ -153,7 +147,7 @@
                                 <label for="role" class="form-label fw-semibold text-white">Rol de Usuario <span class="text-danger">*</span></label>
                                 <select id="role" wire:model="role" class="form-select bg-dark text-white border-secondary @error('role') is-invalid @enderror">
                                     @foreach($roles as $r)
-                                        <option value="{{ $r }}">{{ $r }}</option>
+                                        <option value="{{ $r->name }}">{{ $r->etiqueta() }}</option>
                                     @endforeach
                                 </select>
                                 @error('role')

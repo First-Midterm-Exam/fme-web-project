@@ -2,9 +2,8 @@
 
 namespace Database\Seeders;
 
-use App\Models\User;
+use App\Models\Rol;
 use Illuminate\Database\Seeder;
-use Spatie\Permission\Models\Role;
 
 class RoleSeeder extends Seeder
 {
@@ -13,27 +12,11 @@ class RoleSeeder extends Seeder
      */
     public function run(): void
     {
-        $roles = [
-            'Administrador',
-            'Process Manager / CMMI Manager',
-            'Project Manager',
-            'Contributor',
-        ];
-
-        foreach ($roles as $roleName) {
-            Role::findOrCreate($roleName);
+        foreach (Rol::ETIQUETAS as $id => $nombre) {
+            Rol::updateOrCreate(
+                ['id' => $id],
+                ['name' => $nombre, 'guard_name' => 'web']
+            );
         }
-
-        $admin = User::firstOrCreate(
-            ['email' => 'admin@dima.cl'],
-            [
-                'name' => 'Administrador DIMA',
-                'password' => bcrypt('password'),
-                'is_active' => true,
-                'email_verified_at' => now(),
-            ]
-        );
-
-        $admin->assignRole('Administrador');
     }
 }
