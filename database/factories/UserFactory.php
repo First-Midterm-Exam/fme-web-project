@@ -2,6 +2,7 @@
 
 namespace Database\Factories;
 
+use App\Models\Rol;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Facades\Hash;
@@ -41,5 +42,32 @@ class UserFactory extends Factory
         return $this->state(fn (array $attributes) => [
             'email_verified_at' => null,
         ]);
+    }
+
+    public function administrador(): static
+    {
+        return $this->conRol(Rol::ADMINISTRADOR);
+    }
+
+    public function gestorProcesos(): static
+    {
+        return $this->conRol(Rol::GESTOR_PROCESOS);
+    }
+
+    public function jefeProyecto(): static
+    {
+        return $this->conRol(Rol::JEFE_PROYECTO);
+    }
+
+    public function colaborador(): static
+    {
+        return $this->conRol(Rol::COLABORADOR);
+    }
+
+    public function conRol(int $rolId): static
+    {
+        return $this->afterCreating(function (User $user) use ($rolId): void {
+            $user->syncRoles([Rol::findById($rolId)]);
+        });
     }
 }

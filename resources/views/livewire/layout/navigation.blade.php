@@ -16,46 +16,41 @@ new class extends Component
     }
 }; ?>
 
-<nav class="navbar navbar-expand-lg navbar-dark bg-dark shadow-sm">
-    <div class="container">
-        <a class="navbar-brand fw-bold d-flex align-items-center gap-2" href="{{ route('dashboard') }}" wire:navigate>
-            <i class="bi bi-shield-check text-primary fs-3"></i>
-            <span>DIMA LTDA — CMMI</span>
-        </a>
-        
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarMain" aria-controls="navbarMain" aria-expanded="false" aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span>
-        </button>
+<div class="ms-auto d-flex align-items-center gap-3">
+    @auth
+        <span class="badge {{ auth()->user()->colorDeRol() }} fw-normal px-2 py-1 d-none d-sm-inline">
+            {{ auth()->user()->etiquetaDeRol() }}
+        </span>
 
-        <div class="collapse navbar-collapse" id="navbarMain">
-            <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-                <li class="nav-item">
-                    <a class="nav-link {{ request()->routeIs('dashboard') ? 'active fw-bold' : '' }}" href="{{ route('dashboard') }}" wire:navigate>
-                        <i class="bi bi-speedometer2 me-1"></i>Panel Principal
+        <div class="dropdown">
+            <button class="btn btn-outline-light btn-sm dropdown-toggle d-flex align-items-center gap-2" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                <i class="bi bi-person-circle"></i>
+                <span class="d-none d-md-inline">{{ auth()->user()->name }}</span>
+            </button>
+
+            <ul class="dropdown-menu dropdown-menu-end">
+                <li class="px-3 py-2">
+                    <div class="fw-semibold text-white">{{ auth()->user()->name }}</div>
+                    <div class="small text-secondary">{{ auth()->user()->email }}</div>
+                </li>
+                <li><hr class="dropdown-divider"></li>
+                <li>
+                    <a class="dropdown-item" href="{{ route('profile') }}" wire:navigate>
+                        <i class="bi bi-person-gear me-2"></i>Mi Perfil
                     </a>
                 </li>
-                @can('viewAny', App\Models\User::class)
-                    <li class="nav-item">
-                        <a class="nav-link {{ request()->routeIs('users.index') ? 'active fw-bold' : '' }}" href="{{ route('users.index') }}" wire:navigate>
-                            <i class="bi bi-people-fill me-1"></i>Gestión de Usuarios
-                        </a>
-                    </li>
-                @endcan
+                <li>
+                    <button wire:click="logout" class="dropdown-item text-danger">
+                        <i class="bi bi-box-arrow-right me-2"></i>Cerrar Sesión
+                    </button>
+                </li>
             </ul>
-
-            <div class="d-flex align-items-center gap-2">
-                <span class="badge bg-primary text-white fw-normal px-2 py-1">
-                    {{ auth()->user()->roles->first()?->name ?? 'Sin Rol' }}
-                </span>
-
-                <a href="{{ route('profile') }}" class="btn btn-outline-light btn-sm d-flex align-items-center gap-1" wire:navigate title="Perfil">
-                    <i class="bi bi-person-circle me-1"></i><span>{{ auth()->user()->name }}</span>
-                </a>
-
-                <button wire:click="logout" class="btn btn-outline-danger btn-sm d-flex align-items-center gap-1 ms-1" title="Cerrar Sesión">
-                    <i class="bi bi-box-arrow-right me-1"></i><span>Cerrar Sesión</span>
-                </button>
-            </div>
         </div>
-    </div>
-</nav>
+    @endauth
+
+    @guest
+        <a href="{{ route('login') }}" class="btn btn-primary btn-sm" wire:navigate>
+            <i class="bi bi-box-arrow-in-right me-1"></i>Iniciar Sesión
+        </a>
+    @endguest
+</div>

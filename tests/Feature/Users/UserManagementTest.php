@@ -11,7 +11,7 @@ beforeEach(function () {
 
 test('non admin user cannot access user management page', function () {
     $user = User::factory()->create();
-    $user->assignRole('Contributor');
+    $user->assignRole('Colaborador');
 
     $this->actingAs($user);
 
@@ -39,23 +39,23 @@ test('administrator can create a new user with assigned role', function () {
 
     Livewire::test(UserManagement::class)
         ->call('openCreateModal')
-        ->set('name', 'Nuevo Project Manager')
+        ->set('name', 'Nuevo Jefe de Proyecto')
         ->set('email', 'pm@dima.cl')
         ->set('password', 'password123')
-        ->set('role', 'Project Manager')
+        ->set('role', 'Jefe de Proyecto')
         ->set('is_active', true)
         ->call('save')
         ->assertHasNoErrors();
 
     $this->assertDatabaseHas('users', [
         'email' => 'pm@dima.cl',
-        'name' => 'Nuevo Project Manager',
+        'name' => 'Nuevo Jefe de Proyecto',
         'is_active' => true,
     ]);
 
     $newUser = User::where('email', 'pm@dima.cl')->first();
     expect($newUser)->not->toBeNull()
-        ->and($newUser->hasRole('Project Manager'))->toBeTrue();
+        ->and($newUser->hasRole('Jefe de Proyecto'))->toBeTrue();
 });
 
 test('user creation fails when email is duplicate', function () {
@@ -71,7 +71,7 @@ test('user creation fails when email is duplicate', function () {
         ->set('name', 'Usuario Duplicado')
         ->set('email', 'existente@dima.cl')
         ->set('password', 'password123')
-        ->set('role', 'Contributor')
+        ->set('role', 'Colaborador')
         ->call('save')
         ->assertHasErrors(['email']);
 });
@@ -83,7 +83,7 @@ test('administrator can deactivate user without deleting physically from databas
     $targetUser = User::factory()->create([
         'is_active' => true,
     ]);
-    $targetUser->assignRole('Contributor');
+    $targetUser->assignRole('Colaborador');
 
     $this->actingAs($admin);
 

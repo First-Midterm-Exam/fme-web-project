@@ -29,7 +29,7 @@ new #[Layout('layouts.guest')] class extends Component
         $validated['password'] = Hash::make($validated['password']);
 
         $user = User::create($validated);
-        $user->assignRole(\Spatie\Permission\Models\Role::findOrCreate('Contributor'));
+        $user->assignRole(\App\Models\Rol::findById(\App\Models\Rol::COLABORADOR));
 
         event(new Registered($user));
 

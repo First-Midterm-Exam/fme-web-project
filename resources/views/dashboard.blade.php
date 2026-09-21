@@ -1,54 +1,37 @@
 <x-app-layout>
-    <x-slot name="header">
-        <h2 class="h4 font-weight-bold text-dark mb-0">
-            Panel Principal — DIMA LTDA
-        </h2>
-    </x-slot>
+    <x-slot name="header">Panel Principal</x-slot>
 
-    <div class="container py-4">
-        <div class="card shadow-sm border-0">
-            <div class="card-body p-4">
-                <div class="d-flex align-items-center gap-3 mb-3">
-                    <div class="bg-primary text-white rounded-circle p-3 d-inline-flex">
-                        <i class="bi bi-shield-check fs-2"></i>
-                    </div>
-                    <div>
-                        <h4 class="card-title fw-bold mb-1">¡Bienvenido a la Plataforma CMMI, {{ auth()->user()->name }}!</h4>
-                        <p class="card-text text-muted mb-0">Has iniciado sesión correctamente con el rol: <span class="badge bg-primary fs-6 fw-normal">{{ auth()->user()->roles->first()?->name ?? 'Sin Rol' }}</span></p>
-                    </div>
+    <div class="card bg-dark text-white border-secondary shadow-sm mb-4">
+        <div class="card-body p-4">
+            <div class="d-flex align-items-center gap-3">
+                <div class="bg-primary bg-opacity-25 text-primary rounded-circle p-3 d-inline-flex">
+                    <i class="bi bi-shield-check fs-3"></i>
                 </div>
-                
-                <hr class="my-4">
-
-                <div class="row g-4">
-                    <div class="col-md-6 col-lg-4">
-                        <div class="card h-100 border bg-light shadow-sm">
-                            <div class="card-body">
-                                <h5 class="card-title fw-bold text-primary"><i class="bi bi-person-badge me-2"></i>Tu Cuenta</h5>
-                                <p class="card-text text-secondary small">
-                                    <strong>Nombre:</strong> {{ auth()->user()->name }}<br>
-                                    <strong>Correo:</strong> {{ auth()->user()->email }}<br>
-                                    <strong>Estado:</strong> <span class="badge bg-success">Activo</span>
-                                </p>
-                            </div>
-                        </div>
-                    </div>
-
-                    @can('viewAny', App\Models\User::class)
-                        <div class="col-md-6 col-lg-4">
-                            <div class="card h-100 border bg-light shadow-sm">
-                                <div class="card-body">
-                                    <h5 class="card-title fw-bold text-success"><i class="bi bi-people-fill me-2"></i>Gestión de Usuarios</h5>
-                                    <p class="card-text text-secondary small">Acceso exclusivo para Administradores para dar de alta, editar y dar de baja usuarios.</p>
-                                    <a href="{{ route('users.index') }}" class="btn btn-success btn-sm">
-                                        Ir a Gestión de Usuarios <i class="bi bi-arrow-right ms-1"></i>
-                                    </a>
-                                </div>
-                            </div>
-                        </div>
-                    @endcan
+                <div>
+                    <h2 class="h5 fw-bold mb-1">Bienvenido, {{ auth()->user()->name }}</h2>
+                    <p class="text-secondary mb-0 small">
+                        Plataforma de preparación para el appraisal CMMI V3.0 de DIMA LTDA.
+                    </p>
                 </div>
             </div>
         </div>
+    </div>
+
+    <div class="row g-4">
+        @foreach (App\Support\Modulos::items() as $modulo)
+            @can($modulo['capacidad'])
+                <div class="col-md-6 col-xl-4">
+                    <a href="{{ route($modulo['ruta']) }}" class="card h-100 bg-dark text-white border-secondary shadow-sm text-decoration-none" wire:navigate>
+                        <div class="card-body d-flex flex-column">
+                            <div class="d-flex align-items-center gap-2 mb-2">
+                                <i class="bi {{ $modulo['icono'] }} text-primary fs-5"></i>
+                                <h3 class="h6 fw-bold mb-0">{{ $modulo['etiqueta'] }}</h3>
+                            </div>
+                            <p class="text-secondary small mb-0">{{ $modulo['descripcion'] }}</p>
+                        </div>
+                    </a>
+                </div>
+            @endcan
+        @endforeach
     </div>
 </x-app-layout>
