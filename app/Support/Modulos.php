@@ -114,7 +114,7 @@ final class Modulos
                         'uri' => 'evidencias',
                         'ruta' => 'evidencias.index',
                         'capacidad' => Capacidades::REGISTRAR_EVIDENCIA,
-                        'disponible' => false,
+                        'disponible' => true,
                     ],
                     [
                         'etiqueta' => 'Verificación',

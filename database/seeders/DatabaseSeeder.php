@@ -16,6 +16,7 @@ class DatabaseSeeder extends Seeder
             UsuarioSeeder::class,
             CmmiCatalogSeeder::class,
             ProyectoSeeder::class,
+            EvidenceStatusSeeder::class,
         ]);
     }
 }

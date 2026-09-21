@@ -1,11 +1,14 @@
 <?php
 
 use App\Livewire\Users\UserManagement;
+use App\Models\Evidence;
 use App\Models\Project;
 use App\Models\Rol;
 use App\Models\User;
+use App\Policies\EvidencePolicy;
 use App\Policies\UserPolicy;
 use App\Support\Capacidades;
+use Database\Seeders\EvidenceStatusSeeder;
 use Illuminate\Database\QueryException;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
@@ -70,7 +73,7 @@ test('cada modulo restringe el acceso por url directa segun el rol', function (s
     ['alcance.practicas', [Rol::GESTOR_PROCESOS]],
     ['cumplimiento.evaluacion', [Rol::GESTOR_PROCESOS]],
     ['cumplimiento.criterios', [Rol::GESTOR_PROCESOS]],
-    ['evidencias.index', [Rol::JEFE_PROYECTO, Rol::COLABORADOR]],
+    ['evidencias.index', [Rol::ADMINISTRADOR, Rol::GESTOR_PROCESOS, Rol::JEFE_PROYECTO, Rol::COLABORADOR]],
     ['evidencias.verificacion', [Rol::GESTOR_PROCESOS, Rol::ADMINISTRADOR]],
     ['gaps.index', [Rol::GESTOR_PROCESOS]],
     ['gaps.acciones', [Rol::GESTOR_PROCESOS]],
@@ -204,7 +207,46 @@ test('la pagina 403 se muestra en espanol', function () {
         ->assertSee('Volver al inicio');
 });
 
-test('un jefe de proyecto solo ve evidencias de sus proyectos asignados')->todo();
+test('un jefe de proyecto solo ve evidencias de sus proyectos asignados', function () {
+    $this->seed(EvidenceStatusSeeder::class);
+    $jefe = User::factory()->jefeProyecto()->create();
+    $proyectoAsignado = Project::create([
+        'name' => 'Proyecto Asignado',
+        'code' => 'ASIG-01',
+        'start_date' => '2026-01-01',
+        'status' => 'activo',
+    ]);
+    $proyectoAjeno = Project::create([
+        'name' => 'Proyecto Ajeno',
+        'code' => 'AJEN-01',
+        'start_date' => '2026-01-01',
+        'status' => 'activo',
+    ]);
+    $proyectoAsignado->users()->attach($jefe->id);
+
+    $evidenciaAsignada = Evidence::create([
+        'code' => 'EV-0001',
+        'project_id' => $proyectoAsignado->id,
+        'name' => 'Evidencia 1',
+        'type' => Evidence::TYPE_ACTA,
+        'status_id' => 1,
+        'uploaded_by' => $jefe->id,
+    ]);
+
+    $evidenciaAjena = Evidence::create([
+        'code' => 'EV-0002',
+        'project_id' => $proyectoAjeno->id,
+        'name' => 'Evidencia 2',
+        'type' => Evidence::TYPE_INFORME,
+        'status_id' => 1,
+        'uploaded_by' => $jefe->id,
+    ]);
+
+    $policy = new EvidencePolicy;
+
+    expect($policy->view($jefe, $evidenciaAsignada))->toBeTrue()
+        ->and($policy->view($jefe, $evidenciaAjena))->toBeFalse();
+});
 
 test('el detalle de un proyecto permite acceso a administrador y gestor de procesos, y restringe a jefe de proyecto y colaborador si no estan asignados', function () {
     $proyecto = Project::create([
