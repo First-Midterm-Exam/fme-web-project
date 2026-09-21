@@ -70,6 +70,16 @@
                                     <small class="text-secondary">
                                         <i class="bi bi-tag me-1"></i>{{ ucfirst($evidence->type) }}
                                     </small>
+                                    
+                                    <div class="d-flex flex-wrap gap-1 mt-1">
+                                        @forelse ($evidence->practices as $practice)
+                                            <span class="badge bg-secondary text-light font-monospace" style="font-size: 0.72rem;" title="{{ $practice->name }}">
+                                                {{ $practice->code }}
+                                            </span>
+                                        @empty
+                                            <span class="text-muted" style="font-size: 0.72rem;">Sin prácticas</span>
+                                        @endforelse
+                                    </div>
                                 </td>
                                 <td>
                                     <span class="text-info fw-semibold">{{ $evidence->project->code }}</span>
@@ -197,6 +207,34 @@
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
                             </div>
+                            <div class="mb-3">
+                        <label class="form-label text-secondary fw-semibold">
+                            Asociar a Prácticas CMMI (Opcional)
+                        </label>
+                        <div class="border border-secondary rounded p-2 bg-dark" style="max-height: 160px; overflow-y: auto;">
+                            <div class="row g-2">
+                                @forelse ($availablePractices as $practice)
+                                    <div class="col-md-6">
+                                        <div class="form-check">
+                                            <input class="form-check-input" 
+                                                   type="checkbox" 
+                                                   value="{{ $practice->id }}" 
+                                                   wire:model="selectedPractices" 
+                                                   id="practice_{{ $practice->id }}">
+                                            <label class="form-check-label text-light small" for="practice_{{ $practice->id }}">
+                                                <strong class="text-info">{{ $practice->code }}</strong> - {{ \Illuminate\Support\Str::limit($practice->name, 35) }}
+                                            </label>
+                                        </div>
+                                    </div>
+                                @empty
+                                    <div class="col-12 text-muted small p-1">No hay prácticas registradas en el catálogo.</div>
+                                @endforelse
+                            </div>
+                        </div>
+                        @error('selectedPractices')
+                            <div class="invalid-feedback d-block">{{ $message }}</div>
+                        @enderror
+                    </div>
 
                             <div class="mb-3">
                                 <label for="file" class="form-label text-secondary fw-semibold">

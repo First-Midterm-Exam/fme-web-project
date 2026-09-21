@@ -5,6 +5,7 @@ namespace App\Livewire\Evidences;
 use App\Actions\Evidences\RegisterEvidenceAction;
 use App\Models\Appraisal;
 use App\Models\Evidence;
+use App\Models\Practice;
 use App\Models\Project;
 use App\Models\Rol;
 use App\Models\User;
@@ -33,6 +34,8 @@ class EvidenceManagement extends Component
      * @var mixed
      */
     public $file;
+
+    public array $selectedPractices = [];
 
     public bool $showCreateModal = false;
 
@@ -105,6 +108,8 @@ class EvidenceManagement extends Component
             'type' => ['required', 'string', Rule::in(array_keys(Evidence::TYPES))],
             'description' => ['nullable', 'string', 'max:1000'],
             'file' => ['required', 'file', 'max:'.Evidence::MAX_FILE_SIZE_KB, 'mimes:'.implode(',', Evidence::ALLOWED_EXTENSIONS)],
+            'selectedPractices' => ['nullable', 'array'],
+            'selectedPractices.*' => ['integer', 'exists:practices,id'],
         ], $this->messages());
 
         $project = Project::findOrFail($validated['projectId']);
@@ -120,7 +125,8 @@ class EvidenceManagement extends Component
                 'name' => $validated['name'],
                 'type' => $validated['type'],
                 'description' => $validated['description'] ?? null,
-            ]
+            ],
+            array_map('intval', $this->selectedPractices)
         );
 
         session()->flash('message', 'Evidencia registrada exitosamente.');
@@ -148,7 +154,7 @@ class EvidenceManagement extends Component
 
         $eligibleProjects = $eligibleProjectsQuery->orderBy('name')->get();
 
-        $evidencesQuery = Evidence::with(['project', 'status', 'uploadedBy', 'currentVersion']);
+        $evidencesQuery = Evidence::with(['project', 'status', 'uploadedBy', 'currentVersion', 'practices']);
 
         if (! $authUser->tieneRol(Rol::ADMINISTRADOR, Rol::GESTOR_PROCESOS)) {
             $evidencesQuery->whereIn('project_id', $authUser->projects()->pluck('projects.id'));
@@ -166,6 +172,14 @@ class EvidenceManagement extends Component
         }
 
         $evidences = $evidencesQuery->orderBy('id', 'desc')->paginate(10);
+        $availablePractices = Practice::orderBy('code')->get();
+
+        return view('livewire.evidences.evidence-management', [
+            'evidences' => $evidences,
+            'eligibleProjects' => $eligibleProjects,
+            'types' => Evidence::TYPES,
+            'availablePractices' => $availablePractices,
+        ])->layout('layouts.app');
 
         return view('livewire.evidences.evidence-management', [
             'evidences' => $evidences,
@@ -181,6 +195,7 @@ class EvidenceManagement extends Component
         $this->type = '';
         $this->description = '';
         $this->file = null;
+        $this->selectedPractices = [];
     }
 
     /**
