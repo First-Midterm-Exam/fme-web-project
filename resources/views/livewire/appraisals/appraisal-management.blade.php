@@ -174,6 +174,13 @@
                                         <i class="bi bi-diagram-3 me-1"></i>Alcance
                                     </a>
 
+                                    {{-- Consultar Prácticas del Alcance (HU-08) --}}
+                                    <a href="{{ route('appraisals.practices', $appraisal->id) }}"
+                                       class="btn btn-sm btn-outline-light me-1"
+                                       title="Consultar prácticas del alcance">
+                                        <i class="bi bi-list-check me-1"></i>Prácticas
+                                    </a>
+
                                     {{-- Edit (Admin only, in borrador) --}}
                                     @can('update', $appraisal)
                                         <button wire:click="openEditModal({{ $appraisal->id }})"
