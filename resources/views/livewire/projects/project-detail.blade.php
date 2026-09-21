@@ -144,6 +144,9 @@
                                                 <a href="{{ route('appraisals.scope', $appraisal->id) }}" class="btn btn-outline-info btn-sm">
                                                     <i class="bi bi-diagram-3 me-1"></i>Alcance
                                                 </a>
+                                                <a href="{{ route('appraisals.practices', $appraisal->id) }}" class="btn btn-outline-light btn-sm ms-1" title="Consultar prácticas">
+                                                    <i class="bi bi-list-check me-1"></i>Prácticas
+                                                </a>
                                             </td>
                                         </tr>
                                     @endforeach

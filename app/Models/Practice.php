@@ -62,4 +62,14 @@ class Practice extends Model
     {
         return $this->hasMany(PracticeAssessment::class);
     }
+
+    /**
+     * Criteria belonging to this practice.
+     *
+     * @return HasMany<PracticeCriterion, $this>
+     */
+    public function criteria(): HasMany
+    {
+        return $this->hasMany(PracticeCriterion::class)->orderBy('code');
+    }
 }

@@ -1,6 +1,7 @@
 <?php
 
 use App\Livewire\Appraisals\AppraisalManagement;
+use App\Livewire\Appraisals\AppraisalPracticeList;
 use App\Livewire\Appraisals\AppraisalScopeSelection;
 use App\Livewire\Projects\ProjectDetail;
 use App\Livewire\Projects\ProjectManagement;
@@ -38,6 +39,10 @@ Route::get('appraisals', AppraisalManagement::class)
 Route::get('appraisals/{appraisal}/alcance', AppraisalScopeSelection::class)
     ->middleware(['auth'])
     ->name('appraisals.scope');
+
+Route::get('appraisals/{appraisal}/practicas', AppraisalPracticeList::class)
+    ->middleware(['auth'])
+    ->name('appraisals.practices');
 
 foreach (Modulos::pendientes() as $modulo) {
     Route::view($modulo['uri'], 'modulos.index', ['modulo' => $modulo])
