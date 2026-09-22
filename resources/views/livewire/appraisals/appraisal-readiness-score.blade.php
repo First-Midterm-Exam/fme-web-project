@@ -18,14 +18,13 @@
         </div>
     </div>
 
-    <!-- Criterio 3 / RNF-14: Texto de Descargo Obligatorio -->
     <div style="background-color: rgba(69, 26, 3, 0.4); border: 1px solid rgba(217, 119, 6, 0.4); border-radius: 0.75rem; padding: 1rem; margin-top: 1rem; color: #fef3c7;">
         <div style="display: flex; align-items: flex-start; gap: 0.75rem;">
             <svg style="width: 24px; height: 24px; min-width: 24px; max-width: 24px; color: #f59e0b;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
             </svg>
             <div style="font-size: 0.825rem; line-height: 1.4;">
-                <strong style="display: block; text-transform: uppercase; color: #fbbf24; margin-bottom: 0.25rem; letter-spacing: 0.05em;">Aviso Legal y de Certificación (RNF-14)</strong>
+                <strong style="display: block; text-transform: uppercase; color: #fbbf24; margin-bottom: 0.25rem; letter-spacing: 0.05em;">Aviso Legal y de Certificación</strong>
                 {{ $disclaimer }}
             </div>
         </div>

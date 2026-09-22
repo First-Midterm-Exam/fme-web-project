@@ -3,9 +3,8 @@
 
 @section('content')
 
-{{-- DESCARGO OBLIGATORIO RNF-14 --}}
 <div class="disclaimer">
-  <div class="disclaimer-title">&#9888; Aviso Legal y de Certificación (RNF-14)</div>
+  <div class="disclaimer-title">&#9888; Aviso Legal y de Certificación</div>
   <div class="disclaimer-text">{{ $disclaimer }}</div>
 </div>
 

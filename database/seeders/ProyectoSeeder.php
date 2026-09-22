@@ -23,8 +23,8 @@ class ProyectoSeeder extends Seeder
         );
 
         $usersToAssign = User::whereIn('email', [
-            'jefe@dima.cl',
-            'colaborador@dima.cl',
+            'jefe@dima.bo',
+            'colaborador@dima.bo',
         ])->pluck('id');
 
         if ($usersToAssign->isNotEmpty()) {

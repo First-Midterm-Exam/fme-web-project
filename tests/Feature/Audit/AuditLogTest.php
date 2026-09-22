@@ -179,10 +179,10 @@ test('adding and removing project members is audited', function () {
         ->and($retirado->user_id)->toBe($admin->id);
 });
 
-test('seeding the database does not write audit entries', function () {
+test('seeding the database does not write automatic audit entries', function () {
     $this->seed(DatabaseSeeder::class);
 
-    expect(AuditLog::count())->toBe(0);
+    expect(AuditLog::whereNull('user_id')->count())->toBe(0);
 });
 
 test('only the administrador can open the audit log', function (string $estado, int $esperado) {

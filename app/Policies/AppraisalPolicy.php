@@ -58,6 +58,12 @@ class AppraisalPolicy
         return (new AppraisalScopePolicy)->update($user, $appraisal);
     }
 
+    public function simulate(User $user, Appraisal $appraisal): bool
+    {
+        return $user->tieneRol(Rol::GESTOR_PROCESOS)
+            && $this->view($user, $appraisal);
+    }
+
     public function exportReport(User $user, Appraisal $appraisal): bool
     {
         return $this->view($user, $appraisal);

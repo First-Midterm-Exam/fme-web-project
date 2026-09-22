@@ -32,6 +32,7 @@ class AuditLog extends Model
         EvidenceVersion::class => 'Versión de evidencia',
         Gap::class => 'Gap',
         CorrectiveAction::class => 'Acción correctiva',
+        AppraisalSimulation::class => 'Simulación de appraisal',
     ];
 
     public const IGNORED_ATTRIBUTES = ['password', 'remember_token', 'created_at', 'updated_at'];

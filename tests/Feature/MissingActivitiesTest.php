@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Livewire\Appraisals\MissingActivitiesView;
 use App\Models\Appraisal;
 use App\Models\Gap;
 use App\Models\Practice;
@@ -10,24 +11,28 @@ use App\Models\PracticeEvaluation;
 use App\Models\Project;
 use App\Models\User;
 use App\Services\MissingActivitiesService;
+use Database\Seeders\RoleSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Livewire\Livewire;
 use Tests\TestCase;
-use App\Livewire\Appraisals\MissingActivitiesView;
 
 class MissingActivitiesTest extends TestCase
 {
     use RefreshDatabase;
 
     private User $user;
+
     private Project $project;
+
     private Appraisal $appraisal;
 
     protected function setUp(): void
     {
         parent::setUp();
 
-        $this->user = User::factory()->create();
+        $this->seed(RoleSeeder::class);
+
+        $this->user = User::factory()->gestorProcesos()->create();
 
         $this->project = Project::create([
             'name' => 'Proyecto Test HU-25',
@@ -50,6 +55,17 @@ class MissingActivitiesTest extends TestCase
     {
         $response = $this->get(route('appraisals.missing-activities', $this->appraisal));
         $response->assertRedirect('/login');
+    }
+
+    public function test_a_user_outside_the_project_cannot_access_missing_activities_view()
+    {
+        $this->actingAs(User::factory()->colaborador()->create())
+            ->get(route('appraisals.missing-activities', $this->appraisal))
+            ->assertForbidden();
+
+        $this->actingAs(User::factory()->jefeProyecto()->create())
+            ->get(route('appraisals.missing-activities', $this->appraisal))
+            ->assertForbidden();
     }
 
     public function test_authenticated_user_can_view_missing_activities_screen()
@@ -82,7 +98,6 @@ class MissingActivitiesTest extends TestCase
             'status' => 'no_cumple',
         ]);
 
-        // Gap normal con due_date
         Gap::create([
             'practice_evaluation_id' => $eval->id,
             'code' => 'GAP-001',
@@ -93,7 +108,6 @@ class MissingActivitiesTest extends TestCase
             'due_date' => now()->addDays(5)->toDateString(),
         ]);
 
-        // Gap vencido y crítico con due_date
         Gap::create([
             'practice_evaluation_id' => $eval->id,
             'code' => 'GAP-002',
@@ -104,7 +118,7 @@ class MissingActivitiesTest extends TestCase
             'due_date' => now()->subDays(2)->toDateString(),
         ]);
 
-        $service = new MissingActivitiesService();
+        $service = new MissingActivitiesService;
         $activities = $service->getMissingActivities($this->appraisal);
 
         $this->assertNotEmpty($activities);
