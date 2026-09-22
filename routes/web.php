@@ -9,6 +9,8 @@ use App\Livewire\Appraisals\PracticeChecklist;
 use App\Livewire\Evidences\EvidenceDetail;
 use App\Livewire\Evidences\EvidenceManagement;
 use App\Livewire\Evidences\PendingEvidenceVerification;
+use App\Livewire\Gaps\GapDetail;
+use App\Livewire\Gaps\GapManagement;
 use App\Livewire\Projects\ProjectDetail;
 use App\Livewire\Projects\ProjectManagement;
 use App\Livewire\Users\UserManagement;
@@ -73,6 +75,19 @@ Route::get('evidencias/{evidence}/download', EvidenceDownloadController::class)
 Route::get('evidencias/{evidence}/versiones/{version}/download', EvidenceDownloadController::class)
     ->scopeBindings()
     ->name('evidencias.versions.download');
+
+Route::get('gaps', GapManagement::class)
+    ->middleware(['auth'])
+    ->name('gaps.index');
+
+Route::get('gaps/{gap}', GapDetail::class)
+    ->middleware(['auth'])
+    ->whereNumber('gap')
+    ->name('gaps.show');
+
+Route::get('appraisals/{appraisal}/gaps', GapManagement::class)
+    ->middleware(['auth'])
+    ->name('appraisals.gaps');
 
 foreach (Modulos::pendientes() as $modulo) {
     Route::view($modulo['uri'], 'modulos.index', ['modulo' => $modulo])
