@@ -12,6 +12,12 @@ class EvidenceStatus extends Model
 
     public const REGISTRADA = 1;
 
+    public const VERIFICADA = 2;
+
+    public const OBSERVADA = 3;
+
+    public const RECHAZADA = 4;
+
     /**
      * The attributes that are mass assignable.
      *

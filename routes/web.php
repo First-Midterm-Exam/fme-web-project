@@ -8,6 +8,7 @@ use App\Livewire\Appraisals\AppraisalScopeSelection;
 use App\Livewire\Appraisals\PracticeChecklist;
 use App\Livewire\Evidences\EvidenceDetail;
 use App\Livewire\Evidences\EvidenceManagement;
+use App\Livewire\Evidences\PendingEvidenceVerification;
 use App\Livewire\Projects\ProjectDetail;
 use App\Livewire\Projects\ProjectManagement;
 use App\Livewire\Users\UserManagement;
@@ -52,6 +53,10 @@ Route::get('appraisals/{appraisal}/practicas', AppraisalPracticeList::class)
 Route::get('appraisals/{appraisal}/practicas/{practice}/checklist', PracticeChecklist::class)
     ->middleware(['auth'])
     ->name('appraisals.practices.checklist');
+
+Route::get('evidencias/verificacion', PendingEvidenceVerification::class)
+    ->middleware(['auth', 'can:verificar-evidencias'])
+    ->name('evidencias.verificacion');
 
 Route::get('evidencias', EvidenceManagement::class)
     ->middleware(['auth', 'can:registrar-evidencia'])

@@ -4,6 +4,7 @@ namespace App\Policies;
 
 use App\Models\Appraisal;
 use App\Models\Evidence;
+use App\Models\EvidenceStatus;
 use App\Models\Project;
 use App\Models\Rol;
 use App\Models\User;
@@ -18,6 +19,44 @@ class EvidencePolicy
             Rol::JEFE_PROYECTO,
             Rol::COLABORADOR
         );
+    }
+
+    public function viewPending(User $user, ?Project $project = null): bool
+    {
+        if ($user->esAdministrador()) {
+            return true;
+        }
+
+        if (! $user->tieneRol(Rol::GESTOR_PROCESOS)) {
+            return false;
+        }
+
+        if ($project !== null) {
+            return $user->projects()
+                ->where('projects.id', $project->id)
+                ->exists();
+        }
+
+        return true;
+    }
+
+    public function verify(User $user, Evidence $evidence): bool
+    {
+        if ((int) $evidence->status_id !== EvidenceStatus::REGISTRADA) {
+            return false;
+        }
+
+        if ($user->esAdministrador()) {
+            return true;
+        }
+
+        if ($user->tieneRol(Rol::GESTOR_PROCESOS)) {
+            return $user->projects()
+                ->where('projects.id', $evidence->project_id)
+                ->exists();
+        }
+
+        return false;
     }
 
     public function view(User $user, Evidence $evidence): bool
