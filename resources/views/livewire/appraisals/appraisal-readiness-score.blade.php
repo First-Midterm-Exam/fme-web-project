@@ -1,4 +1,4 @@
-<div class="p-6 max-w-7xl mx-auto space-y-6">
+<div class="p-6 max-w-7xl mx-auto space-y-6 text-gray-100">
     <!-- Header -->
     <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-gray-800 pb-5">
         <div>
@@ -9,96 +9,98 @@
             </p>
         </div>
         <div>
-            <a href="{{ route('appraisals.index') }}" class="px-4 py-2 text-sm font-medium text-gray-300 bg-gray-800 hover:bg-gray-700 rounded-lg transition-colors">
+            <a href="{{ route('appraisals.index') }}" class="px-4 py-2 text-sm font-medium text-gray-300 bg-gray-800 hover:bg-gray-700 rounded-lg transition-colors inline-block">
                 &larr; Volver
             </a>
         </div>
     </div>
 
     <!-- Criterio 3 / RNF-14: Texto de Descargo Obligatorio -->
-    <div class="p-4 rounded-xl bg-amber-950/30 border border-amber-600/30 text-amber-200">
-        <div class="flex items-start gap-3">
-            <svg class="w-5 h-5 text-amber-400 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <div style="background-color: rgba(69, 26, 3, 0.4); border: 1px solid rgba(217, 119, 6, 0.4); border-radius: 0.75rem; padding: 1rem; margin-top: 1rem; color: #fef3c7;">
+        <div style="display: flex; align-items: flex-start; gap: 0.75rem;">
+            <svg style="width: 24px; height: 24px; min-width: 24px; max-width: 24px; color: #f59e0b;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
             </svg>
-            <div class="text-xs leading-relaxed">
-                <span class="font-bold uppercase tracking-wider block text-amber-300 mb-0.5">Aviso Legal y de Certificación (RNF-14)</span>
+            <div style="font-size: 0.825rem; line-height: 1.4;">
+                <strong style="display: block; text-transform: uppercase; color: #fbbf24; margin-bottom: 0.25rem; letter-spacing: 0.05em;">Aviso Legal y de Certificación (RNF-14)</strong>
                 {{ $disclaimer }}
             </div>
         </div>
     </div>
 
-    <!-- Criterios 1 y 2: Score de 0% a 100% y Desglose Ponderado -->
-    <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <!-- Puntuación Global -->
-        <div class="p-6 rounded-2xl bg-gray-900 border border-gray-800 flex flex-col justify-center items-center text-center">
-            <span class="text-xs font-semibold uppercase text-gray-400 tracking-wider">Score Global</span>
-            <div class="text-5xl font-black mt-3 {{ $score >= 80 ? 'text-emerald-400' : ($score >= 50 ? 'text-amber-400' : 'text-rose-400') }}">
+    <!-- Grid de Métricas -->
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem; margin-top: 1.5rem;">
+        
+        <!-- Score Global -->
+        <div style="background-color: #111827; border: 1px solid #1f2937; border-radius: 1rem; padding: 1.5rem; text-align: center; display: flex; flex-direction: column; justify-content: center; align-items: center;">
+            <span style="font-size: 0.75rem; text-transform: uppercase; color: #9ca3af; font-weight: 600; letter-spacing: 0.05em;">Score Global</span>
+            <div style="font-size: 3rem; font-weight: 900; margin: 0.5rem 0; color: {{ $score >= 80 ? '#34d399' : ($score >= 50 ? '#fbbf24' : '#f87171') }};">
                 {{ $score }}%
             </div>
-            <span class="text-xs text-gray-500 mt-2">
+            <span style="font-size: 0.75rem; color: #6b7280;">
                 {{ $score >= 80 ? 'Preparación Alta' : ($score >= 50 ? 'Preparación Media' : 'Preparación Baja') }}
             </span>
         </div>
 
-        <!-- Componente: Prácticas (40%) -->
-        <div class="p-5 rounded-2xl bg-gray-900 border border-gray-800 flex flex-col justify-between">
+        <!-- Prácticas (40%) -->
+        <div style="background-color: #111827; border: 1px solid #1f2937; border-radius: 1rem; padding: 1.25rem; display: flex; flex-direction: column; justify-content: space-between;">
             <div>
-                <div class="flex justify-between items-center text-xs text-gray-400 mb-2">
-                    <span class="font-medium">Prácticas Evaluadas</span>
-                    <span class="text-indigo-400 font-semibold">{{ $breakdown['practices']['weight'] }}% Peso</span>
+                <div style="display: flex; justify-content: space-between; font-size: 0.75rem; color: #9ca3af; margin-bottom: 0.5rem;">
+                    <span>Prácticas Evaluadas</span>
+                    <span style="color: #818cf8; font-weight: 600;">{{ $breakdown['practices']['weight'] }}% Peso</span>
                 </div>
-                <div class="text-2xl font-bold text-white">
+                <div style="font-size: 1.5rem; font-weight: 700; color: #ffffff;">
                     {{ $breakdown['practices']['count'] }} / {{ $breakdown['practices']['total'] }}
                 </div>
-                <div class="w-full bg-gray-800 h-2 rounded-full mt-3 overflow-hidden">
-                    <div class="bg-indigo-500 h-full rounded-full transition-all duration-500" style="width: {{ $breakdown['practices']['completion_rate'] }}%"></div>
+                <div style="width: 100%; background-color: #1f2937; height: 8px; border-radius: 9999px; margin-top: 0.75rem; overflow: hidden;">
+                    <div style="background-color: #6366f1; height: 100%; width: {{ $breakdown['practices']['completion_rate'] }}%; border-radius: 9999px;"></div>
                 </div>
             </div>
-            <div class="text-xs text-gray-400 mt-4 flex justify-between border-t border-gray-800/80 pt-2">
+            <div style="font-size: 0.75rem; color: #9ca3af; margin-top: 1rem; border-top: 1px solid #1f2937; padding-top: 0.5rem; display: flex; justify-content: space-between;">
                 <span>Aporte:</span>
-                <span class="text-white font-semibold">+{{ $breakdown['practices']['contribution'] }}%</span>
+                <strong style="color: #ffffff;">+{{ $breakdown['practices']['contribution'] }}%</strong>
             </div>
         </div>
 
-        <!-- Componente: Evidencias (40%) -->
-        <div class="p-5 rounded-2xl bg-gray-900 border border-gray-800 flex flex-col justify-between">
+        <!-- Evidencias (40%) -->
+        <div style="background-color: #111827; border: 1px solid #1f2937; border-radius: 1rem; padding: 1.25rem; display: flex; flex-direction: column; justify-content: space-between;">
             <div>
-                <div class="flex justify-between items-center text-xs text-gray-400 mb-2">
-                    <span class="font-medium">Evidencias Verificadas</span>
-                    <span class="text-cyan-400 font-semibold">{{ $breakdown['evidences']['weight'] }}% Peso</span>
+                <div style="display: flex; justify-content: space-between; font-size: 0.75rem; color: #9ca3af; margin-bottom: 0.5rem;">
+                    <span>Evidencias Verificadas</span>
+                    <span style="color: #22d3ee; font-weight: 600;">{{ $breakdown['evidences']['weight'] }}% Peso</span>
                 </div>
-                <div class="text-2xl font-bold text-white">
+                <div style="font-size: 1.5rem; font-weight: 700; color: #ffffff;">
                     {{ $breakdown['evidences']['count'] }} / {{ $breakdown['evidences']['required'] }}
                 </div>
-                <div class="w-full bg-gray-800 h-2 rounded-full mt-3 overflow-hidden">
-                    <div class="bg-cyan-500 h-full rounded-full transition-all duration-500" style="width: {{ $breakdown['evidences']['completion_rate'] }}%"></div>
+                <div style="width: 100%; background-color: #1f2937; height: 8px; border-radius: 9999px; margin-top: 0.75rem; overflow: hidden;">
+                    <div style="background-color: #06b6d4; height: 100%; width: {{ $breakdown['evidences']['completion_rate'] }}%; border-radius: 9999px;"></div>
                 </div>
             </div>
-            <div class="text-xs text-gray-400 mt-4 flex justify-between border-t border-gray-800/80 pt-2">
+            <div style="font-size: 0.75rem; color: #9ca3af; margin-top: 1rem; border-top: 1px solid #1f2937; padding-top: 0.5rem; display: flex; justify-content: space-between;">
                 <span>Aporte:</span>
-                <span class="text-white font-semibold">+{{ $breakdown['evidences']['contribution'] }}%</span>
+                <strong style="color: #ffffff;">+{{ $breakdown['evidences']['contribution'] }}%</strong>
             </div>
         </div>
 
-        <!-- Componente: Gaps (20%) -->
-        <div class="p-5 rounded-2xl bg-gray-900 border border-gray-800 flex flex-col justify-between">
+        <!-- Gaps (20%) -->
+        <div style="background-color: #111827; border: 1px solid #1f2937; border-radius: 1rem; padding: 1.25rem; display: flex; flex-direction: column; justify-content: space-between;">
             <div>
-                <div class="flex justify-between items-center text-xs text-gray-400 mb-2">
-                    <span class="font-medium">Salud de Gaps</span>
-                    <span class="text-emerald-400 font-semibold">{{ $breakdown['gaps']['weight'] }}% Peso</span>
+                <div style="display: flex; justify-content: space-between; font-size: 0.75rem; color: #9ca3af; margin-bottom: 0.5rem;">
+                    <span>Salud de Gaps</span>
+                    <span style="color: #34d399; font-weight: 600;">{{ $breakdown['gaps']['weight'] }}% Peso</span>
                 </div>
-                <div class="text-2xl font-bold {{ $breakdown['gaps']['open_count'] > 0 ? 'text-amber-400' : 'text-emerald-400' }}">
+                <div style="font-size: 1.5rem; font-weight: 700; color: {{ $breakdown['gaps']['open_count'] > 0 ? '#fbbf24' : '#34d399' }};">
                     {{ $breakdown['gaps']['open_count'] }} abiertos
                 </div>
-                <div class="w-full bg-gray-800 h-2 rounded-full mt-3 overflow-hidden">
-                    <div class="bg-emerald-500 h-full rounded-full transition-all duration-500" style="width: {{ $breakdown['gaps']['health_rate'] }}%"></div>
+                <div style="width: 100%; background-color: #1f2937; height: 8px; border-radius: 9999px; margin-top: 0.75rem; overflow: hidden;">
+                    <div style="background-color: #10b981; height: 100%; width: {{ $breakdown['gaps']['health_rate'] }}%; border-radius: 9999px;"></div>
                 </div>
             </div>
-            <div class="text-xs text-gray-400 mt-4 flex justify-between border-t border-gray-800/80 pt-2">
+            <div style="font-size: 0.75rem; color: #9ca3af; margin-top: 1rem; border-top: 1px solid #1f2937; padding-top: 0.5rem; display: flex; justify-content: space-between;">
                 <span>Aporte:</span>
-                <span class="text-white font-semibold">+{{ $breakdown['gaps']['contribution'] }}%</span>
+                <strong style="color: #ffffff;">+{{ $breakdown['gaps']['contribution'] }}%</strong>
             </div>
         </div>
+
     </div>
 </div>
