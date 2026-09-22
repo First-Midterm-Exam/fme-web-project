@@ -123,7 +123,7 @@ final class Modulos
                         'uri' => 'evidencias/verificacion',
                         'ruta' => 'evidencias.verificacion',
                         'capacidad' => Capacidades::VERIFICAR_EVIDENCIAS,
-                        'disponible' => false,
+                        'disponible' => true,
                     ],
                 ],
             ],

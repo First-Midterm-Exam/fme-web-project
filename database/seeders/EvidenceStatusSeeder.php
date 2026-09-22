@@ -16,5 +16,20 @@ class EvidenceStatusSeeder extends Seeder
             ['id' => EvidenceStatus::REGISTRADA],
             ['name' => 'Registrada']
         );
+
+        EvidenceStatus::updateOrCreate(
+            ['id' => EvidenceStatus::VERIFICADA],
+            ['name' => 'Verificado']
+        );
+
+        EvidenceStatus::updateOrCreate(
+            ['id' => EvidenceStatus::OBSERVADA],
+            ['name' => 'Observado']
+        );
+
+        EvidenceStatus::updateOrCreate(
+            ['id' => EvidenceStatus::RECHAZADA],
+            ['name' => 'Rechazado']
+        );
     }
 }

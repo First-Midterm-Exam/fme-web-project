@@ -50,7 +50,22 @@ class Evidence extends Model
         'description',
         'status_id',
         'uploaded_by',
+        'verification_reason',
+        'verified_by',
+        'verified_at',
     ];
+
+    /**
+     * Get the attributes that should be cast.
+     *
+     * @return array<string, string>
+     */
+    protected function casts(): array
+    {
+        return [
+            'verified_at' => 'datetime',
+        ];
+    }
 
     /**
      * @return BelongsTo<Project, $this>
@@ -74,6 +89,14 @@ class Evidence extends Model
     public function uploadedBy(): BelongsTo
     {
         return $this->belongsTo(User::class, 'uploaded_by');
+    }
+
+    /**
+     * @return BelongsTo<User, $this>
+     */
+    public function verifiedBy(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'verified_by');
     }
 
     /**
