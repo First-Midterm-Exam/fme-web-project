@@ -31,7 +31,7 @@ test('cmmi catalog seeder loads exactly 26 practices across levels 1 to 3', func
 
 test('cmmi catalog seeder loads criteria for all practices', function () {
     $criteriaCount = PracticeCriterion::count();
-    expect($criteriaCount)->toBe(52); // 26 practices * 2 criteria
+    expect($criteriaCount)->toBe(52);
 
     $practices = Practice::with('criteria')->get();
     foreach ($practices as $practice) {

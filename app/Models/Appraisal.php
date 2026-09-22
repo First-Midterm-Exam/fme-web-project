@@ -76,6 +76,22 @@ class Appraisal extends Model
     }
 
     /**
+     * @return HasMany<AppraisalSimulation, $this>
+     */
+    public function simulations(): HasMany
+    {
+        return $this->hasMany(AppraisalSimulation::class);
+    }
+
+    /**
+     * @return HasMany<ReadinessMeasurement, $this>
+     */
+    public function readinessMeasurements(): HasMany
+    {
+        return $this->hasMany(ReadinessMeasurement::class);
+    }
+
+    /**
      * @param  Builder<Appraisal>  $query
      */
     public function scopeVisibleFor(Builder $query, User $user): void

@@ -27,6 +27,10 @@
         </div>
 
         <div class="d-flex gap-2">
+            <a href="{{ route('appraisals.reportes.export', [$appraisal->id, 'practicas']) }}"
+               class="btn btn-outline-danger btn-sm" target="_blank">
+                <i class="bi bi-file-earmark-pdf me-1"></i>Exportar PDF
+            </a>
             <a href="{{ route('appraisals.scope', $appraisal->id) }}" class="btn btn-outline-info btn-sm">
                 <i class="bi bi-diagram-3 me-1"></i>Ver Alcance
             </a>
@@ -34,6 +38,7 @@
                 <i class="bi bi-arrow-left me-1"></i>Volver a Appraisals
             </a>
         </div>
+
     </div>
 
     <div class="row g-3 mb-4">
@@ -327,6 +332,13 @@
                     </div>
 
                     <div class="modal-footer border-secondary">
+                        @can('ver-readiness')
+                            <a href="{{ route('readiness.trazabilidad', ['appraisal' => $appraisal->id, 'practica' => $selectedPractice->id]) }}"
+                               class="btn btn-outline-info btn-sm"
+                               wire:navigate>
+                                <i class="bi bi-bezier2 me-1"></i>Ver trazabilidad
+                            </a>
+                        @endcan
                         @can('evaluar-cumplimiento')
                             <a href="{{ route('criterios.index', [$appraisal->id, $selectedPractice->id]) }}"
                                class="btn btn-outline-light btn-sm">

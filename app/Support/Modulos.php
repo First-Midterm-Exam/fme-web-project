@@ -53,6 +53,15 @@ final class Modulos
                         'capacidad' => Capacidades::GESTIONAR_USUARIOS,
                         'disponible' => true,
                     ],
+                    [
+                        'etiqueta' => 'Bitácora',
+                        'descripcion' => 'Quién cambió qué y cuándo en la plataforma.',
+                        'icono' => 'bi-journal-text',
+                        'uri' => 'bitacora',
+                        'ruta' => 'bitacora.index',
+                        'capacidad' => Capacidades::VER_BITACORA,
+                        'disponible' => true,
+                    ],
                 ],
             ],
             [
@@ -138,7 +147,7 @@ final class Modulos
                         'uri' => 'gaps',
                         'ruta' => 'gaps.index',
                         'capacidad' => Capacidades::GESTIONAR_GAPS,
-                        'disponible' => false,
+                        'disponible' => true,
                     ],
                     [
                         'etiqueta' => 'Acciones Correctivas',
@@ -148,6 +157,15 @@ final class Modulos
                         'ruta' => 'gaps.acciones',
                         'capacidad' => Capacidades::GESTIONAR_GAPS,
                         'disponible' => false,
+                    ],
+                    [
+                        'etiqueta' => 'Validación de Cierre',
+                        'descripcion' => 'Verificación y cierre formal de gaps resueltos.',
+                        'icono' => 'bi-patch-check',
+                        'uri' => 'gaps/validacion',
+                        'ruta' => 'gaps.validacion',
+                        'capacidad' => Capacidades::GESTIONAR_GAPS,
+                        'disponible' => true,
                     ],
                 ],
             ],
@@ -162,7 +180,16 @@ final class Modulos
                         'uri' => 'readiness',
                         'ruta' => 'readiness.index',
                         'capacidad' => Capacidades::VER_READINESS,
-                        'disponible' => false,
+                        'disponible' => true,
+                    ],
+                    [
+                        'etiqueta' => 'Simulación de Appraisal',
+                        'descripcion' => 'Veredicto de preparación, condiciones y brechas.',
+                        'icono' => 'bi-clipboard2-pulse',
+                        'uri' => 'readiness/simulacion',
+                        'ruta' => 'readiness.simulacion',
+                        'capacidad' => Capacidades::VER_READINESS,
+                        'disponible' => true,
                     ],
                     [
                         'etiqueta' => 'Trazabilidad',
@@ -171,7 +198,7 @@ final class Modulos
                         'uri' => 'readiness/trazabilidad',
                         'ruta' => 'readiness.trazabilidad',
                         'capacidad' => Capacidades::VER_READINESS,
-                        'disponible' => false,
+                        'disponible' => true,
                     ],
                 ],
             ],
@@ -184,6 +211,14 @@ final class Modulos
     public static function items(): array
     {
         return array_merge(...array_column(self::grupos(), 'items'));
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    public static function item(string $ruta): array
+    {
+        return collect(self::items())->firstWhere('ruta', $ruta) ?? [];
     }
 
     /**
