@@ -2,6 +2,7 @@
 
 namespace App\Actions\Evidences;
 
+use App\Actions\Gaps\GenerateGapAction;
 use App\Models\Evidence;
 use App\Models\EvidenceStatus;
 use App\Models\User;
@@ -10,6 +11,8 @@ use Illuminate\Validation\ValidationException;
 
 class VerifyEvidenceAction
 {
+    public function __construct(private readonly GenerateGapAction $gaps) {}
+
     /**
      * @throws ValidationException
      */
@@ -59,6 +62,10 @@ class VerifyEvidenceAction
                 'verified_by' => $verifier->id,
                 'verified_at' => now(),
             ]);
+
+            if ($statusId === EvidenceStatus::RECHAZADA) {
+                $this->gaps->fromRejectedEvidence($lockedEvidence, $verifier);
+            }
 
             return $lockedEvidence->fresh(['status', 'verifiedBy']);
         });

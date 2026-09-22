@@ -13,6 +13,7 @@ use App\Models\PracticeEvaluation;
 use App\Models\Project;
 use App\Models\User;
 use Database\Seeders\CmmiCatalogSeeder;
+use Database\Seeders\EvidenceStatusSeeder;
 use Database\Seeders\RoleSeeder;
 use Livewire\Livewire;
 
@@ -329,7 +330,7 @@ test('inactive criteria do not count for the practice status', function () {
 test('only verified evidences of the appraisal project make the practice verified', function (bool $delMismoProyecto, string $esperado) {
     [$appraisal, $practice, $project] = setupChecklistScenario();
     $gestor = User::factory()->gestorProcesos()->create();
-    $verificada = EvidenceStatus::create(['name' => 'Verificada']);
+    $this->seed(EvidenceStatusSeeder::class);
 
     $proyectoEvidencia = $delMismoProyecto ? $project : Project::create([
         'name' => 'Otro proyecto',
@@ -343,7 +344,7 @@ test('only verified evidences of the appraisal project make the practice verifie
         'project_id' => $proyectoEvidencia->id,
         'name' => 'Plan aprobado',
         'type' => Evidence::TYPE_PLAN,
-        'status_id' => $verificada->id,
+        'status_id' => EvidenceStatus::VERIFICADA,
         'uploaded_by' => $gestor->id,
     ]);
     $evidencia->practices()->attach($practice->id);

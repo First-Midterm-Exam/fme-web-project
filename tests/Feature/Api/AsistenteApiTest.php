@@ -5,6 +5,7 @@ use App\Models\AppraisalScope;
 use App\Models\CriterionCheck;
 use App\Models\Evidence;
 use App\Models\EvidenceStatus;
+use App\Models\Gap;
 use App\Models\Practice;
 use App\Models\PracticeEvaluation;
 use App\Models\Project;
@@ -66,6 +67,15 @@ function escenarioAsistente(): array
         'practice_criterion_id' => $segundo->id,
         'status' => CriterionCheck::STATUS_NO_CUMPLE,
         'notes' => 'Roles sin asignar en el acta.',
+    ]);
+
+    Gap::create([
+        'code' => 'GAP-0001',
+        'practice_evaluation_id' => $evaluacion->id,
+        'practice_criterion_id' => $segundo->id,
+        'title' => 'Criterio '.$segundo->code.' no cumplido',
+        'status' => Gap::STATUS_ABIERTO,
+        'generated_by' => $gestor->id,
     ]);
 
     Evidence::create([
@@ -139,7 +149,7 @@ test('the retrieved context comes from the real appraisal data', function (strin
     'cumplimiento' => ['Muéstrame el cumplimiento por práctica', 'cumplimiento_practicas', ['PLAN 1.1', 'EST 1.1', '50%'], []],
     'criterios' => ['¿Qué criterios no se cumplen?', 'criterios_no_cumplidos', ['PLAN 1.1-C2', 'Roles sin asignar en el acta.'], ['PLAN 1.1-C1']],
     'evidencias' => ['Lista las evidencias del proyecto', 'evidencias', ['EV-0001', 'Plan de proyecto v1'], []],
-    'gaps' => ['Dame los gaps críticos', 'gaps_criticos', ['GAP-', 'datos de ejemplo'], ['Baja']],
+    'gaps' => ['Dame los gaps críticos', 'gaps_criticos', ['GAP-0001', 'Criterio PLAN 1.1-C2 no cumplido', 'Sin asignar', 'aún no tienen severidad'], ['datos de ejemplo']],
 ]);
 
 test('a report request generates a pdf that can be downloaded', function () {

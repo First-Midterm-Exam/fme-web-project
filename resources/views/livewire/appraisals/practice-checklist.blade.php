@@ -149,6 +149,11 @@
                                         {{ $criterion->required ? 'Obligatorio' : 'Opcional' }}
                                     </span>
                                     <span class="badge {{ App\Models\CriterionCheck::statusBadgeColor($mark) }}">{{ $mark }}</span>
+                                    @if ($gaps->has($criterion->id))
+                                        <span class="badge bg-danger bg-opacity-25 text-danger border border-danger border-opacity-50" title="{{ $gaps->get($criterion->id)->title }}">
+                                            <i class="bi bi-exclamation-triangle me-1"></i>{{ $gaps->get($criterion->id)->code }} · {{ $gaps->get($criterion->id)->status }}
+                                        </span>
+                                    @endif
                                 </div>
                                 <p class="mb-1">{{ $criterion->description }}</p>
 

@@ -83,6 +83,14 @@ class PracticeEvaluation extends Model
         return $this->hasMany(CriterionCheck::class);
     }
 
+    /**
+     * @return HasMany<Gap, $this>
+     */
+    public function gaps(): HasMany
+    {
+        return $this->hasMany(Gap::class);
+    }
+
     public function compliancePercentage(): int
     {
         $applicable = $this->applicableCriteriaCount();
