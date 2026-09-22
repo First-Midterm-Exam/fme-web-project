@@ -2,8 +2,10 @@
 
 namespace App\Providers;
 
+use App\Models\AuditLog;
 use App\Models\Rol;
 use App\Models\User;
+use App\Observers\AuditableObserver;
 use App\Services\Asistente\Fuentes\FuenteGaps;
 use App\Services\Asistente\Fuentes\GapsRegistrados;
 use App\Services\Documentos\RevisorFormato;
@@ -43,6 +45,14 @@ class AppServiceProvider extends ServiceProvider
         $this->registrarCapacidades();
         $this->registrarDirectivaDeRol();
         $this->registrarLimitesDeApi();
+        $this->registrarAuditoria();
+    }
+
+    private function registrarAuditoria(): void
+    {
+        foreach (array_keys(AuditLog::AUDITED_MODELS) as $modelo) {
+            $modelo::observe(AuditableObserver::class);
+        }
     }
 
     private function registrarCapacidades(): void

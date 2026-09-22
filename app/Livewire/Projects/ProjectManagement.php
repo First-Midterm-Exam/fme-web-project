@@ -2,8 +2,10 @@
 
 namespace App\Livewire\Projects;
 
+use App\Models\AuditLog;
 use App\Models\Project;
 use App\Models\User;
+use App\Services\AuditLogger;
 use Carbon\Carbon;
 use Illuminate\Contracts\View\View;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
@@ -183,6 +185,8 @@ class ProjectManagement extends Component
 
         if (! $project->users()->where('users.id', $userId)->exists()) {
             $project->users()->attach($userId);
+
+            app(AuditLogger::class)->record(AuditLog::ACTION_MEMBER_ADDED, $project, null, ['integrante' => User::whereKey($userId)->value('email')]);
         }
 
         $this->selectedUserId = null;
@@ -194,7 +198,9 @@ class ProjectManagement extends Component
         $project = Project::findOrFail($this->membersProjectId);
         $this->authorize('manageMembers', $project);
 
-        $project->users()->detach($userId);
+        if ($project->users()->detach($userId) > 0) {
+            app(AuditLogger::class)->record(AuditLog::ACTION_MEMBER_REMOVED, $project, ['integrante' => User::whereKey($userId)->value('email')], null);
+        }
 
         session()->flash('membersMessage', 'Integrante eliminado del proyecto.');
     }

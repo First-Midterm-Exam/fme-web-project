@@ -53,6 +53,15 @@ final class Modulos
                         'capacidad' => Capacidades::GESTIONAR_USUARIOS,
                         'disponible' => true,
                     ],
+                    [
+                        'etiqueta' => 'Bitácora',
+                        'descripcion' => 'Quién cambió qué y cuándo en la plataforma.',
+                        'icono' => 'bi-journal-text',
+                        'uri' => 'bitacora',
+                        'ruta' => 'bitacora.index',
+                        'capacidad' => Capacidades::VER_BITACORA,
+                        'disponible' => true,
+                    ],
                 ],
             ],
             [

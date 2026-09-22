@@ -28,6 +28,8 @@ final class Capacidades
 
     public const VER_READINESS = 'ver-readiness';
 
+    public const VER_BITACORA = 'ver-bitacora';
+
     public const MAPA = [
         self::GESTIONAR_USUARIOS => [Rol::ADMINISTRADOR],
         self::VER_PROYECTOS => [Rol::ADMINISTRADOR, Rol::GESTOR_PROCESOS, Rol::JEFE_PROYECTO, Rol::COLABORADOR],
@@ -40,6 +42,7 @@ final class Capacidades
         self::REGISTRAR_EVIDENCIA => [Rol::ADMINISTRADOR, Rol::GESTOR_PROCESOS, Rol::JEFE_PROYECTO, Rol::COLABORADOR],
         self::GESTIONAR_GAPS => [Rol::GESTOR_PROCESOS],
         self::VER_READINESS => [Rol::GESTOR_PROCESOS, Rol::JEFE_PROYECTO],
+        self::VER_BITACORA => [Rol::ADMINISTRADOR],
     ];
 
     /**
