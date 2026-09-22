@@ -107,6 +107,11 @@ class AppraisalScopeSelection extends Component
     {
         $this->authorize('updateScope', $this->appraisal);
 
+        if (empty($this->selectedPracticeIds)) {
+            session()->flash('error', 'Debe seleccionar al menos una práctica CMMI para conformar el alcance.');
+            return;
+        }
+
         try {
             $scopeService->syncScope($this->appraisal, $this->selectedPracticeIds);
             session()->flash('message', 'Alcance CMMI guardado exitosamente ('.count($this->selectedPracticeIds).' prácticas en alcance).');

@@ -21,9 +21,13 @@ class AppraisalScopeService
             throw new DomainException('El alcance solo puede modificarse cuando el appraisal está en estado borrador.');
         }
 
+        // Validación HU-24: Alcance mínimo requerido
+        if (empty($practiceIds)) {
+            throw new DomainException('Debe seleccionar al menos un área o práctica para definir el alcance del appraisal.');
+        }
+
         $appraisal->practices()->sync(AppraisalScope::pivotFor($practiceIds));
     }
-
     /**
      * @throws DomainException
      */
