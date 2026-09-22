@@ -17,6 +17,10 @@
         </div>
     </div>
 
+    @can('ver-readiness')
+        <livewire:dashboard.statistics />
+    @endcan
+
     <div class="row g-4">
         @foreach (App\Support\Modulos::items() as $modulo)
             @can($modulo['capacidad'])
