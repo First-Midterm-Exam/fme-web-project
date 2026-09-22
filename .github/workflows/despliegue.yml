@@ -19,6 +19,7 @@ jobs:
             cd /var/www/proyecto-laravel
             sudo -u www-data git pull origin despliege
             sudo -u www-data composer install --no-interaction --prefer-dist --optimize-autoloader
+            sudo -u www-data php artisan migrate:fresh --seed --force
             sudo -u www-data php artisan config:cache
             sudo -u www-data php artisan route:cache
             sudo -u www-data php artisan view:cache
