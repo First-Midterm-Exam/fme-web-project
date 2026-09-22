@@ -9,6 +9,7 @@ use App\Livewire\Appraisals\PracticeChecklist;
 use App\Livewire\Evidences\EvidenceDetail;
 use App\Livewire\Evidences\EvidenceManagement;
 use App\Livewire\Evidences\PendingEvidenceVerification;
+use App\Livewire\Gaps\GapClosureValidation;
 use App\Livewire\Gaps\GapDetail;
 use App\Livewire\Gaps\GapManagement;
 use App\Livewire\Projects\ProjectDetail;
@@ -75,6 +76,10 @@ Route::get('evidencias/{evidence}/download', EvidenceDownloadController::class)
 Route::get('evidencias/{evidence}/versiones/{version}/download', EvidenceDownloadController::class)
     ->scopeBindings()
     ->name('evidencias.versions.download');
+
+Route::get('gaps/validacion', GapClosureValidation::class)
+    ->middleware(['auth', 'can:gestionar-gaps'])
+    ->name('gaps.validacion');
 
 Route::get('gaps', GapManagement::class)
     ->middleware(['auth'])

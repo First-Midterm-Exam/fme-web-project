@@ -2,7 +2,9 @@
 
 namespace App\Livewire\Gaps;
 
+use App\Actions\Gaps\UpdateCorrectiveActionProgressAction;
 use App\Models\CorrectiveAction;
+use App\Models\Evidence;
 use App\Models\Gap;
 use App\Models\User;
 use App\Services\CorrectiveActionService;
@@ -11,23 +13,35 @@ use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
 use Livewire\Component;
+use Livewire\WithFileUploads;
 
 /**
  * @property-read Collection<int, User> $availableUsers
  */
 class GapDetail extends Component
 {
-    use AuthorizesRequests;
+    use AuthorizesRequests, WithFileUploads;
 
     public Gap $gap;
 
     public bool $showingCreateModal = false;
+
+    public bool $showingUpdateProgressModal = false;
 
     public string $description = '';
 
     public ?int $responsible_id = null;
 
     public string $due_date = '';
+
+    public int $progress_percent = 0;
+
+    /**
+     * @var mixed
+     */
+    public $solution_file;
+
+    public string $progress_comment = '';
 
     public ?string $successMessage = null;
 
@@ -57,6 +71,33 @@ class GapDetail extends Component
     public function closeCreateModal(): void
     {
         $this->showingCreateModal = false;
+        $this->resetValidation();
+    }
+
+    public function openUpdateProgressModal(): void
+    {
+        $activeAction = $this->gap->activeCorrectiveAction();
+
+        if (! $activeAction) {
+            $this->errorMessage = 'No hay una acción correctiva activa para actualizar.';
+
+            return;
+        }
+
+        $this->authorize('update', $activeAction);
+
+        $this->progress_percent = $activeAction->progress_percent;
+        $this->solution_file = null;
+        $this->progress_comment = '';
+        $this->resetValidation();
+        $this->showingUpdateProgressModal = true;
+    }
+
+    public function closeUpdateProgressModal(): void
+    {
+        $this->showingUpdateProgressModal = false;
+        $this->solution_file = null;
+        $this->progress_comment = '';
         $this->resetValidation();
     }
 
@@ -97,6 +138,57 @@ class GapDetail extends Component
         }
     }
 
+    public function updateProgress(UpdateCorrectiveActionProgressAction $actionService): void
+    {
+        $activeAction = $this->gap->activeCorrectiveAction();
+
+        if (! $activeAction) {
+            $this->errorMessage = 'No hay una acción correctiva activa para actualizar.';
+
+            return;
+        }
+
+        $this->authorize('update', $activeAction);
+
+        $this->validate([
+            'progress_percent' => ['required', 'integer', 'min:0', 'max:100'],
+            'solution_file' => ['nullable', 'file', 'max:'.Evidence::MAX_FILE_SIZE_KB, 'mimes:'.implode(',', Evidence::ALLOWED_EXTENSIONS)],
+            'progress_comment' => ['nullable', 'string', 'max:1000'],
+        ], [
+            'progress_percent.required' => 'El porcentaje de avance es obligatorio.',
+            'progress_percent.integer' => 'El avance debe ser un número entero.',
+            'progress_percent.min' => 'El avance no puede ser menor a 0%.',
+            'progress_percent.max' => 'El avance no puede ser mayor a 100%.',
+            'solution_file.max' => 'El archivo supera el tamaño máximo permitido de 10 MB.',
+            'solution_file.mimes' => 'El tipo de archivo no está permitido.',
+            'progress_comment.max' => 'El comentario no puede superar los 1000 caracteres.',
+        ]);
+
+        try {
+            /** @var User $currentUser */
+            $currentUser = auth()->user();
+
+            $actionService->execute(
+                $activeAction,
+                $currentUser,
+                (int) $this->progress_percent,
+                $this->solution_file,
+                $this->progress_comment
+            );
+
+            $this->gap->refresh();
+            $this->showingUpdateProgressModal = false;
+            $this->solution_file = null;
+            $this->progress_comment = '';
+            $this->successMessage = 'Avance de la acción correctiva actualizado exitosamente.';
+            $this->errorMessage = null;
+        } catch (ValidationException $e) {
+            foreach ($e->errors() as $field => $messages) {
+                $this->addError($field, $messages[0]);
+            }
+        }
+    }
+
     /**
      * @return Collection<int, User>
      */
@@ -120,6 +212,8 @@ class GapDetail extends Component
             'assignedTo',
             'generatedBy',
             'correctiveActions.responsible',
+            'correctiveActions.solutionEvidence',
+            'correctiveActions.logs.user',
             'logs.user',
         ]);
 

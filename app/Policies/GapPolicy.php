@@ -71,4 +71,31 @@ class GapPolicy
     {
         return $user->esAdministrador() && $this->view($user, $gap);
     }
+
+    /**
+     * Determine whether the user can validate a gap closure (HU-20).
+     * Administrador can validate any gap.
+     * Gestor de Procesos can validate only if assigned to the gap's project.
+     */
+    public function validate(User $user, Gap $gap): bool
+    {
+        if ($gap->status !== Gap::STATUS_RESUELTO) {
+            return false;
+        }
+
+        if ($user->esAdministrador()) {
+            return true;
+        }
+
+        if ($user->tieneRol(Rol::GESTOR_PROCESOS)) {
+            $project = $gap->practiceEvaluation?->appraisal?->project;
+            if (! $project) {
+                return false;
+            }
+
+            return $user->projects()->where('projects.id', $project->id)->exists();
+        }
+
+        return false;
+    }
 }

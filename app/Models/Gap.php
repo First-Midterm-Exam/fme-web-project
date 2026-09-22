@@ -41,7 +41,7 @@ class Gap extends Model
         self::STATUS_ABIERTO => [self::STATUS_EN_PROGRESO],
         self::STATUS_EN_PROGRESO => [self::STATUS_RESUELTO, self::STATUS_ABIERTO],
         self::STATUS_RESUELTO => [self::STATUS_VERIFICADO, self::STATUS_EN_PROGRESO],
-        self::STATUS_VERIFICADO => [],
+        self::STATUS_VERIFICADO => [self::STATUS_CERRADO],
     ];
 
     /**
@@ -61,6 +61,8 @@ class Gap extends Model
         'assigned_to_id',
         'due_date',
         'generated_by',
+        'closed_by',
+        'closed_at',
     ];
 
     /**
@@ -72,6 +74,7 @@ class Gap extends Model
     {
         return [
             'due_date' => 'date',
+            'closed_at' => 'datetime',
         ];
     }
 
@@ -113,6 +116,14 @@ class Gap extends Model
     public function generatedBy(): BelongsTo
     {
         return $this->belongsTo(User::class, 'generated_by');
+    }
+
+    /**
+     * @return BelongsTo<User, $this>
+     */
+    public function closedBy(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'closed_by');
     }
 
     /**
