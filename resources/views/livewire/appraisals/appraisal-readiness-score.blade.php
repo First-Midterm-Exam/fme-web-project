@@ -8,7 +8,10 @@
                 Proyecto: <span class="text-gray-200 font-medium">{{ $appraisal->project->name ?? 'N/A' }}</span>
             </p>
         </div>
-        <div>
+        <div class="flex items-center gap-2">
+            <a href="{{ route('appraisals.reportes.export', [$appraisal->id, 'readiness']) }}" class="px-4 py-2 text-sm font-medium text-white bg-red-700 hover:bg-red-800 rounded-lg transition-colors inline-block" target="_blank">
+                📄 Exportar PDF
+            </a>
             <a href="{{ route('appraisals.index') }}" class="px-4 py-2 text-sm font-medium text-gray-300 bg-gray-800 hover:bg-gray-700 rounded-lg transition-colors inline-block">
                 &larr; Volver
             </a>

@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\CriterioController;
 use App\Http\Controllers\EvidenceDownloadController;
+use App\Http\Controllers\ReportExportController;
 use App\Livewire\Appraisals\AppraisalManagement;
 use App\Livewire\Appraisals\AppraisalPracticeList;
 use App\Livewire\Appraisals\AppraisalScopeSelection;
@@ -127,5 +128,10 @@ Route::middleware(['auth', 'can:evaluar-cumplimiento'])
     Route::get('/appraisals/{appraisal}/missing-activities', MissingActivitiesView::class)
     ->name('appraisals.missing-activities')
     ->middleware(['auth']);
+
+Route::get('appraisals/{appraisal}/reportes/{tipo}', ReportExportController::class)
+    ->middleware(['auth'])
+    ->where('tipo', 'practicas|evidencias|gaps|acciones|readiness')
+    ->name('appraisals.reportes.export');
 
 require __DIR__.'/auth.php';

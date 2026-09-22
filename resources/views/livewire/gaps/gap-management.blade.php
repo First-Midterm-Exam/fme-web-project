@@ -22,7 +22,13 @@
         </div>
 
         @if ($appraisal)
-            <div>
+            <div class="d-flex gap-2">
+                <a href="{{ route('appraisals.reportes.export', [$appraisal->id, 'gaps']) }}" class="btn btn-outline-danger btn-sm" target="_blank">
+                    <i class="bi bi-file-earmark-pdf me-1"></i>Exportar Gaps PDF
+                </a>
+                <a href="{{ route('appraisals.reportes.export', [$appraisal->id, 'acciones']) }}" class="btn btn-outline-danger btn-sm" target="_blank">
+                    <i class="bi bi-file-earmark-pdf me-1"></i>Exportar Acciones PDF
+                </a>
                 <a href="{{ route('appraisals.index') }}" class="btn btn-outline-secondary btn-sm">
                     <i class="bi bi-arrow-left me-1"></i>Volver a Appraisals
                 </a>
