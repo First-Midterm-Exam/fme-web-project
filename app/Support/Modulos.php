@@ -138,7 +138,7 @@ final class Modulos
                         'uri' => 'gaps',
                         'ruta' => 'gaps.index',
                         'capacidad' => Capacidades::GESTIONAR_GAPS,
-                        'disponible' => false,
+                        'disponible' => true,
                     ],
                     [
                         'etiqueta' => 'Acciones Correctivas',

@@ -75,7 +75,7 @@ test('cada modulo restringe el acceso por url directa segun el rol', function (s
     ['cumplimiento.criterios', [Rol::GESTOR_PROCESOS]],
     ['evidencias.index', [Rol::ADMINISTRADOR, Rol::GESTOR_PROCESOS, Rol::JEFE_PROYECTO, Rol::COLABORADOR]],
     ['evidencias.verificacion', [Rol::GESTOR_PROCESOS, Rol::ADMINISTRADOR]],
-    ['gaps.index', [Rol::GESTOR_PROCESOS]],
+    ['gaps.index', [Rol::ADMINISTRADOR, Rol::GESTOR_PROCESOS, Rol::JEFE_PROYECTO, Rol::COLABORADOR]],
     ['gaps.acciones', [Rol::GESTOR_PROCESOS]],
     ['readiness.index', [Rol::GESTOR_PROCESOS, Rol::JEFE_PROYECTO]],
     ['readiness.trazabilidad', [Rol::GESTOR_PROCESOS, Rol::JEFE_PROYECTO]],
