@@ -103,10 +103,8 @@ test('al crear la accion correctiva el gap pasa automaticamente a estado en prog
 
     $this->gap->refresh();
 
-    // Criterio 2: Al crear la acción, el gap pasa automáticamente a estado "en progreso"
     expect($this->gap->status)->toBe(Gap::STATUS_EN_PROGRESO);
 
-    // RNF-06: El cambio queda registrado en la bitácora
     $this->assertDatabaseHas('gap_logs', [
         'gap_id' => $this->gap->id,
         'field' => 'status',
@@ -120,14 +118,12 @@ test('no se puede crear una segunda accion correctiva mientras la primera del mi
 
     $service = app(CorrectiveActionService::class);
 
-    // Primera acción activa
     $service->createForGap($this->gap, [
         'description' => 'Primera acción correctiva activa',
         'responsible_id' => $this->colaborador->id,
         'due_date' => now()->addDays(10)->toDateString(),
     ], $this->gestor);
 
-    // Intentar crear la segunda acción debe fallar por validación server-side
     expect(fn () => $service->createForGap($this->gap, [
         'description' => 'Segunda acción que debe ser rechazada',
         'responsible_id' => $this->jefe->id,
@@ -138,7 +134,6 @@ test('no se puede crear una segunda accion correctiva mientras la primera del mi
 test('crear accion correctiva mediante componente Livewire valida campos obligatorios y crea la accion', function () {
     $this->actingAs($this->gestor);
 
-    // Validación de campos obligatorios
     Livewire::test(GapDetail::class, ['gap' => $this->gap])
         ->call('openCreateModal')
         ->set('description', '')
@@ -147,7 +142,6 @@ test('crear accion correctiva mediante componente Livewire valida campos obligat
         ->call('createCorrectiveAction')
         ->assertHasErrors(['description', 'responsible_id', 'due_date']);
 
-    // Creación exitosa
     Livewire::test(GapDetail::class, ['gap' => $this->gap])
         ->call('openCreateModal')
         ->set('description', 'Implementar plantilla oficial de cronograma')
@@ -170,10 +164,8 @@ test('el responsable asignado puede ver la accion especifica y su gap aunque no 
         'due_date' => now()->addDays(8)->toDateString(),
     ], $this->gestor);
 
-    // El colaborador asignado no pertenece al proyecto ni es gestor/admin, pero es responsable de esta acción
     $this->actingAs($this->colaboradorSinProyecto);
 
-    // Criterio 4: Puede ver la acción correctiva y el detalle del gap
     $this->get(route('gaps.show', $this->gap))
         ->assertOk()
         ->assertSee('Tarea asignada a colaborador externo al equipo de gestion')

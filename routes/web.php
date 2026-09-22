@@ -14,6 +14,7 @@ use App\Livewire\Gaps\GapDetail;
 use App\Livewire\Gaps\GapManagement;
 use App\Livewire\Projects\ProjectDetail;
 use App\Livewire\Projects\ProjectManagement;
+use App\Livewire\Reports\Traceability;
 use App\Livewire\Users\UserManagement;
 use App\Models\User;
 use App\Support\Modulos;
@@ -89,6 +90,10 @@ Route::get('gaps/{gap}', GapDetail::class)
     ->middleware(['auth'])
     ->whereNumber('gap')
     ->name('gaps.show');
+
+Route::get('readiness/trazabilidad', Traceability::class)
+    ->middleware(['auth', 'can:ver-readiness'])
+    ->name('readiness.trazabilidad');
 
 Route::get('appraisals/{appraisal}/gaps', GapManagement::class)
     ->middleware(['auth'])

@@ -23,7 +23,6 @@ class GapManagement extends Component
 
     public ?Appraisal $appraisal = null;
 
-    // Filters
     public string $search = '';
 
     public string $severityFilter = 'all';
@@ -32,7 +31,6 @@ class GapManagement extends Component
 
     public bool $overdueOnly = false;
 
-    // Edit modal
     public bool $showEditModal = false;
 
     public ?int $editingGapId = null;
@@ -53,7 +51,6 @@ class GapManagement extends Component
 
     public string $changeReason = '';
 
-    // Detail modal (bitácora / RNF-06)
     public bool $showDetailModal = false;
 
     public ?int $viewingGapId = null;
@@ -166,7 +163,6 @@ class GapManagement extends Component
             ])],
         ], $this->messages());
 
-        // Validate sequence transition (RF-29)
         if ($this->status !== $gap->status && ! $gap->canTransitionTo($this->status)) {
             $this->addError(
                 'status',
@@ -242,7 +238,6 @@ class GapManagement extends Component
 
         $gaps = $query->paginate(15);
 
-        // Overall counts for summary cards
         $baseCountQuery = Gap::query()->visibleFor($authUser)
             ->when($this->appraisal, function ($q) {
                 $q->whereHas('practiceEvaluation', fn ($pe) => $pe->where('appraisal_id', $this->appraisal->id));
@@ -260,13 +255,11 @@ class GapManagement extends Component
                 ->count(),
         ];
 
-        // Available users for assignment
         $availableUsers = User::query()
             ->where('is_active', true)
             ->orderBy('name')
             ->get();
 
-        // Selected gap for detail/bitacora modal
         $viewingGap = null;
         if ($this->showDetailModal && $this->viewingGapId) {
             $viewingGap = Gap::with([

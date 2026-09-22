@@ -160,12 +160,10 @@ test('d) un usuario que no pasa la Policy no puede actualizar el avance', functi
     [$gap, $action, $responsible, $projectManager, $project] = createGapWithAction(Gap::STATUS_EN_PROGRESO);
     $otherUser = User::factory()->colaborador()->create();
 
-    // Usuario fuera del proyecto no puede ni ver el gap
     Livewire::actingAs($otherUser)
         ->test(GapDetail::class, ['gap' => $gap])
         ->assertForbidden();
 
-    // Usuario dentro del proyecto pero no responsable ni admin/gestor puede ver el gap pero no actualizar la acción
     $unassignedMember = User::factory()->colaborador()->create();
     $project->users()->attach($unassignedMember->id);
 

@@ -23,8 +23,6 @@ beforeEach(function (): void {
 });
 
 /**
- * Helper para crear un escenario completo de prueba para gaps.
- *
  * @param  list<User>  $assignedUsers
  * @return array{0: Project, 1: Appraisal, 2: PracticeEvaluation, 3: Gap}
  */
@@ -71,10 +69,6 @@ function crearEscenarioGap(array $assignedUsers = [], string $status = Gap::STAT
     return [$project, $appraisal, $evaluation, $gap];
 }
 
-// =============================================================================
-// 1. Editar severidad, responsable y fecha límite de un gap existente
-// =============================================================================
-
 test('gestor de procesos y administrador pueden editar severidad, responsable y fecha limite de un gap', function (): void {
     $gestor = User::factory()->gestorProcesos()->create();
     $responsable = User::factory()->colaborador()->create();
@@ -103,10 +97,6 @@ test('gestor de procesos y administrador pueden editar severidad, responsable y 
         ->and($gap->status)->toBe(Gap::STATUS_EN_PROGRESO);
 });
 
-// =============================================================================
-// 2. Los cambios de severidad, responsable, fecha y estado quedan en bitácora (RNF-06)
-// =============================================================================
-
 test('cambios de severidad, responsable, fecha y estado quedan registrados en la bitacora RNF-06', function (): void {
     $gestor = User::factory()->gestorProcesos()->create();
     $responsable = User::factory()->colaborador()->create();
@@ -114,7 +104,6 @@ test('cambios de severidad, responsable, fecha y estado quedan registrados en la
 
     $service = app(GapTransitionService::class);
 
-    // Actualizar datos mediante el servicio
     $service->updateGap($gap, [
         'severity' => Gap::SEVERITY_CRITICA,
         'assigned_to_id' => $responsable->id,
@@ -122,7 +111,6 @@ test('cambios de severidad, responsable, fecha y estado quedan registrados en la
         'status' => Gap::STATUS_EN_PROGRESO,
     ], $gestor);
 
-    // Verificar que la bitácora contiene los registros correspondientes
     $logs = GapLog::where('gap_id', $gap->id)->get();
 
     expect($logs->where('field', 'severity')->first())->not->toBeNull()
@@ -135,14 +123,9 @@ test('cambios de severidad, responsable, fecha y estado quedan registrados en la
         ->and($logs->where('field', 'status')->first()->old_value)->toBe(Gap::STATUS_ABIERTO)
         ->and($logs->where('field', 'status')->first()->new_value)->toBe(Gap::STATUS_EN_PROGRESO);
 
-    // La relación en el modelo Gap retorna la bitácora
     expect($gap->bitacora)->toHaveCount(4)
         ->and($gap->logs)->toHaveCount(4);
 });
-
-// =============================================================================
-// 3. Filtrar listado de gaps por severidad y por estado
-// =============================================================================
 
 test('el listado de gaps se puede filtrar por severidad y por estado', function (): void {
     $gestor = User::factory()->gestorProcesos()->create();
@@ -166,14 +149,12 @@ test('el listado de gaps se puede filtrar por severidad y por estado', function 
 
     $this->actingAs($gestor);
 
-    // Filtro por severidad Crítica
     Livewire::test(GapManagement::class)
         ->set('severityFilter', Gap::SEVERITY_CRITICA)
         ->assertSee($gap2->code)
         ->assertDontSee($gap1->code)
         ->assertDontSee($gap3->code);
 
-    // Filtro por estado Resuelto
     Livewire::test(GapManagement::class)
         ->set('statusFilter', Gap::STATUS_RESUELTO)
         ->assertSee($gap3->code)
@@ -181,15 +162,10 @@ test('el listado de gaps se puede filtrar por severidad y por estado', function 
         ->assertDontSee($gap2->code);
 });
 
-// =============================================================================
-// 4. Gap con fecha límite vencida se resalta visualmente (RF-30)
-// =============================================================================
-
 test('un gap con fecha limite vencida y sin resolver se marca visualmente como alerta RF-30', function (): void {
     $gestor = User::factory()->gestorProcesos()->create();
     [$project, $appraisal, $evaluation, $gap] = crearEscenarioGap();
 
-    // Establecer fecha vencida
     $gap->update([
         'due_date' => now()->subDays(3)->format('Y-m-d'),
         'status' => Gap::STATUS_ABIERTO,
@@ -203,14 +179,9 @@ test('un gap con fecha limite vencida y sin resolver se marca visualmente como a
         ->assertSee('¡Vencido!')
         ->assertSee('table-danger');
 
-    // Al resolverse, deja de considerarse vencido como alerta activa
     $gap->update(['status' => Gap::STATUS_RESUELTO]);
     expect($gap->isOverdue())->toBeFalse();
 });
-
-// =============================================================================
-// 5. Un Jefe de Proyecto o Colaborador solo ve los gaps de sus proyectos y no puede editarlos
-// =============================================================================
 
 test('jefe de proyecto solo ve gaps de sus proyectos asignados y recibe 403 al intentar editar', function (): void {
     $pmAsignado = User::factory()->jefeProyecto()->create();
@@ -220,36 +191,27 @@ test('jefe de proyecto solo ve gaps de sus proyectos asignados y recibe 403 al i
 
     $policy = new GapPolicy;
 
-    // PM Asignado puede ver pero no editar
     expect($policy->view($pmAsignado, $gap))->toBeTrue()
         ->and($policy->update($pmAsignado, $gap))->toBeFalse();
 
-    // PM Ajeno no puede ver ni editar
     expect($policy->view($pmAjeno, $gap))->toBeFalse()
         ->and($policy->update($pmAjeno, $gap))->toBeFalse();
 
-    // En Livewire, el PM Asignado puede ver el componente pero no ve el botón de edición
     $this->actingAs($pmAsignado);
     Livewire::test(GapManagement::class)
         ->assertOk()
         ->assertSee($gap->code)
         ->assertDontSee('btn-edit-gap-'.$gap->id);
 
-    // Si intenta invocar openEdit o save directamente, recibe 403
     Livewire::test(GapManagement::class)
         ->call('openEdit', $gap->id)
         ->assertForbidden();
 
-    // El PM Ajeno no ve el gap en su listado
     $this->actingAs($pmAjeno);
     Livewire::test(GapManagement::class)
         ->assertOk()
         ->assertDontSee($gap->code);
 });
-
-// =============================================================================
-// 6. No se puede cambiar el estado saltándose pasos del ciclo de vida (RF-29)
-// =============================================================================
 
 test('no se puede cambiar el estado del gap saltandose pasos del ciclo de vida RF-29', function (): void {
     $gestor = User::factory()->gestorProcesos()->create();
@@ -257,7 +219,6 @@ test('no se puede cambiar el estado del gap saltandose pasos del ciclo de vida R
 
     $this->actingAs($gestor);
 
-    // Intentar saltar de "Abierto" directamente a "Verificado" falla en Livewire con error de validación
     Livewire::test(GapManagement::class)
         ->call('openEdit', $gap->id)
         ->set('status', Gap::STATUS_VERIFICADO)
@@ -266,12 +227,10 @@ test('no se puede cambiar el estado del gap saltandose pasos del ciclo de vida R
 
     expect($gap->fresh()->status)->toBe(Gap::STATUS_ABIERTO);
 
-    // A nivel de servicio o modelo, arroja DomainException
     $service = app(GapTransitionService::class);
     expect(fn () => $service->transition($gap, Gap::STATUS_VERIFICADO, $gestor))
         ->toThrow(DomainException::class);
 
-    // Transición válida: Abierto -> En progreso -> Resuelto -> Verificado
     $service->transition($gap, Gap::STATUS_EN_PROGRESO, $gestor);
     expect($gap->fresh()->status)->toBe(Gap::STATUS_EN_PROGRESO);
 

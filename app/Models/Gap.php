@@ -32,9 +32,6 @@ class Gap extends Model
     public const SEVERITY_CRITICA = 'Crítica';
 
     /**
-     * Allowed lifecycle transitions (RF-29).
-     * Secuencia estricta: Abierto -> En progreso -> Resuelto -> Verificado.
-     *
      * @var array<string, list<string>>
      */
     public const ALLOWED_TRANSITIONS = [
@@ -135,8 +132,6 @@ class Gap extends Model
     }
 
     /**
-     * Alias for logs relation to fulfill bitacora requirements.
-     *
      * @return HasMany<GapLog, $this>
      */
     public function bitacora(): HasMany
@@ -152,25 +147,17 @@ class Gap extends Model
         return $this->hasMany(CorrectiveAction::class)->latest();
     }
 
-    /**
-     * Get the current active corrective action if any.
-     */
     public function activeCorrectiveAction(): ?CorrectiveAction
     {
         return $this->correctiveActions->first(fn (CorrectiveAction $action) => $action->isActive());
     }
 
-    /**
-     * Check if the gap has an active corrective action.
-     */
     public function hasActiveCorrectiveAction(): bool
     {
         return $this->activeCorrectiveAction() !== null;
     }
 
     /**
-     * Scope to filter gaps visible to the given user based on inherited project visibility.
-     *
      * @param  Builder<Gap>  $query
      */
     public function scopeVisibleFor(Builder $query, User $user): void
@@ -192,9 +179,6 @@ class Gap extends Model
         $query->whereNotIn('status', [self::STATUS_CERRADO, self::STATUS_VERIFICADO]);
     }
 
-    /**
-     * Verify if the gap is overdue (RF-30).
-     */
     public function isOverdue(): bool
     {
         if (! $this->due_date) {
@@ -210,9 +194,6 @@ class Gap extends Model
         return $dueDate->isPast() && ! $dueDate->isToday();
     }
 
-    /**
-     * Check if a transition to the target status is valid.
-     */
     public function canTransitionTo(string $targetStatus): bool
     {
         if ($this->status === $targetStatus) {
@@ -225,8 +206,6 @@ class Gap extends Model
     }
 
     /**
-     * Transition the gap status following the lifecycle (RF-29).
-     *
      * @throws \DomainException
      */
     public function transitionTo(string $targetStatus, ?User $user = null, ?string $description = null): void
@@ -253,9 +232,6 @@ class Gap extends Model
         );
     }
 
-    /**
-     * Record a change in the gap audit log (RNF-06).
-     */
     public function recordLog(?User $user, string $field, ?string $oldValue, ?string $newValue, ?string $description = null): GapLog
     {
         return $this->logs()->create([

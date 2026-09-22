@@ -82,7 +82,7 @@ class UpdateCorrectiveActionProgressAction
                     $user,
                     'Acción correctiva completada al 100%'
                 );
-            } elseif ($progressPercent > 0 && $progressPercent < 100) {
+            } elseif ($progressPercent > 0) {
                 if ($lockedAction->status === CorrectiveAction::STATUS_ABIERTA) {
                     $lockedAction->status = CorrectiveAction::STATUS_EN_PROGRESO;
                 }
