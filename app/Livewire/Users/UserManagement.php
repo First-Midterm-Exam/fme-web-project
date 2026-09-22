@@ -2,8 +2,10 @@
 
 namespace App\Livewire\Users;
 
+use App\Models\AuditLog;
 use App\Models\Rol;
 use App\Models\User;
+use App\Services\AuditLogger;
 use Illuminate\Contracts\View\View;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Support\Facades\Hash;
@@ -105,8 +107,14 @@ class UserManagement extends Component
                 $user->password = Hash::make($validated['password']);
             }
 
+            $previousRole = $user->rol()?->name;
+
             $user->save();
             $user->syncRoles([$validated['role']]);
+
+            if ($previousRole !== $validated['role']) {
+                app(AuditLogger::class)->record(AuditLog::ACTION_ROLE_CHANGED, $user, ['rol' => $previousRole], ['rol' => $validated['role']]);
+            }
 
             session()->flash('message', 'Usuario actualizado exitosamente.');
         } else {
@@ -128,6 +136,8 @@ class UserManagement extends Component
             ]);
 
             $user->assignRole($validated['role']);
+
+            app(AuditLogger::class)->record(AuditLog::ACTION_ROLE_CHANGED, $user, ['rol' => null], ['rol' => $validated['role']]);
 
             session()->flash('message', 'Usuario creado exitosamente con el rol asignado.');
         }

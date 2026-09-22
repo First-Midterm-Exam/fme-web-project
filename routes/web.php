@@ -6,6 +6,7 @@ use App\Livewire\Appraisals\AppraisalManagement;
 use App\Livewire\Appraisals\AppraisalPracticeList;
 use App\Livewire\Appraisals\AppraisalScopeSelection;
 use App\Livewire\Appraisals\PracticeChecklist;
+use App\Livewire\Audit\AuditLogList;
 use App\Livewire\Evidences\EvidenceDetail;
 use App\Livewire\Evidences\EvidenceManagement;
 use App\Livewire\Evidences\PendingEvidenceVerification;
@@ -90,6 +91,10 @@ Route::get('gaps/{gap}', GapDetail::class)
     ->middleware(['auth'])
     ->whereNumber('gap')
     ->name('gaps.show');
+
+Route::get('bitacora', AuditLogList::class)
+    ->middleware(['auth', 'can:ver-bitacora'])
+    ->name('bitacora.index');
 
 Route::get('readiness/trazabilidad', Traceability::class)
     ->middleware(['auth', 'can:ver-readiness'])
