@@ -57,4 +57,9 @@ class AppraisalPolicy
     {
         return (new AppraisalScopePolicy)->update($user, $appraisal);
     }
+
+    public function exportReport(User $user, Appraisal $appraisal): bool
+    {
+        return $this->view($user, $appraisal);
+    }
 }
