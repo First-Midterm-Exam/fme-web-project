@@ -1,5 +1,4 @@
 <div class="container-fluid py-4">
-    {{-- Header & Breadcrumbs --}}
     <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
             <nav aria-label="breadcrumb">
@@ -31,7 +30,6 @@
         @endif
     </div>
 
-    {{-- Feedback Messages --}}
     @if (session()->has('message'))
         <div class="alert alert-success alert-dismissible fade show shadow-sm" role="alert">
             <i class="bi bi-check-circle-fill me-2"></i>{{ session('message') }}
@@ -39,7 +37,6 @@
         </div>
     @endif
 
-    {{-- Resumen de Gaps (KPI Cards) --}}
     <div class="row g-3 mb-4">
         <div class="col-md-2 col-sm-4 col-6">
             <div class="card bg-dark border-secondary shadow-sm text-center py-2 h-100">
@@ -98,11 +95,9 @@
         </div>
     </div>
 
-    {{-- Barra de Filtros y Búsqueda --}}
     <div class="card bg-dark border-secondary shadow-sm mb-4">
         <div class="card-body p-3">
             <div class="row g-2 align-items-center">
-                {{-- Búsqueda --}}
                 <div class="col-lg-4 col-md-6">
                     <div class="input-group">
                         <span class="input-group-text bg-dark border-secondary text-secondary"><i class="bi bi-search"></i></span>
@@ -113,7 +108,6 @@
                     </div>
                 </div>
 
-                {{-- Filtro por Severidad --}}
                 <div class="col-lg-3 col-md-3 col-6">
                     <select class="form-select bg-dark text-white border-secondary" wire:model.live="severityFilter">
                         <option value="all">Todas las severidades</option>
@@ -124,7 +118,6 @@
                     </select>
                 </div>
 
-                {{-- Filtro por Estado --}}
                 <div class="col-lg-3 col-md-3 col-6">
                     <select class="form-select bg-dark text-white border-secondary" wire:model.live="statusFilter">
                         <option value="all">Todos los estados</option>
@@ -135,7 +128,6 @@
                     </select>
                 </div>
 
-                {{-- Toggle de Vencidos --}}
                 <div class="col-lg-2 col-md-12 text-lg-end">
                     <button type="button"
                             wire:click="$toggle('overdueOnly')"
@@ -147,7 +139,6 @@
         </div>
     </div>
 
-    {{-- Tabla de Gaps --}}
     <div class="card bg-dark border-secondary shadow-sm">
         <div class="table-responsive">
             <table class="table table-dark table-hover align-middle mb-0 border-secondary">
@@ -168,14 +159,12 @@
                             $isOverdue = $gap->isOverdue();
                         @endphp
                         <tr class="{{ $isOverdue ? 'table-danger bg-danger bg-opacity-10 border-start border-danger border-4' : '' }}" wire:key="gap-{{ $gap->id }}">
-                            {{-- Código --}}
                             <td>
                                 <span class="badge bg-dark border border-secondary text-light font-monospace fw-bold">
                                     {{ $gap->code }}
                                 </span>
                             </td>
 
-                            {{-- Título y Contexto --}}
                             <td>
                                 <div class="fw-semibold text-white mb-1">{{ $gap->title }}</div>
                                 <div class="small text-secondary d-flex flex-wrap gap-2 align-items-center">
@@ -199,14 +188,12 @@
                                 </div>
                             </td>
 
-                            {{-- Severidad --}}
                             <td>
                                 <span class="badge {{ $gap->severityBadgeColor() }} px-2 py-1">
                                     {{ $gap->severity }}
                                 </span>
                             </td>
 
-                            {{-- Responsable --}}
                             <td>
                                 @if ($gap->assignedTo)
                                     <div class="d-flex align-items-center">
@@ -220,7 +207,6 @@
                                 @endif
                             </td>
 
-                            {{-- Fecha Límite & Alerta Vencido (RF-30) --}}
                             <td>
                                 @if ($gap->due_date)
                                     <div class="{{ $isOverdue ? 'text-danger fw-bold' : 'text-light' }} small">
@@ -237,16 +223,13 @@
                                 @endif
                             </td>
 
-                            {{-- Estado --}}
                             <td>
                                 <span class="badge {{ $gap->statusBadgeColor() }} px-2 py-1">
                                     {{ $gap->status }}
                                 </span>
                             </td>
 
-                            {{-- Acciones --}}
                             <td class="text-end">
-                                {{-- Ver Detalle y Acciones Correctivas (HU-18) --}}
                                 <a href="{{ route('gaps.show', $gap) }}"
                                    class="btn btn-sm btn-outline-primary me-1"
                                    title="Ver detalle y acciones correctivas"
@@ -254,7 +237,6 @@
                                     <i class="bi bi-eye"></i>
                                 </a>
 
-                                {{-- Ver Bitácora rápida --}}
                                 <button type="button"
                                         wire:click="openDetail({{ $gap->id }})"
                                         class="btn btn-sm btn-outline-info me-1"
@@ -262,7 +244,6 @@
                                     <i class="bi bi-clock-history"></i>
                                 </button>
 
-                                {{-- Editar (solo Gestor y Admin) --}}
                                 @can('update', $gap)
                                     <button type="button"
                                             wire:click="openEdit({{ $gap->id }})"
@@ -293,9 +274,6 @@
         @endif
     </div>
 
-    {{-- =========================================================================
-         Modal de Edición de Gap
-         ========================================================================= --}}
     @if ($showEditModal)
         <div class="modal fade show d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.7);">
             <div class="modal-dialog modal-lg modal-dialog-centered">
@@ -309,7 +287,6 @@
 
                     <form wire:submit="save">
                         <div class="modal-body">
-                            {{-- Título --}}
                             <div class="mb-3">
                                 <label class="form-label text-secondary small">Título del Gap <span class="text-danger">*</span></label>
                                 <input type="text"
@@ -321,7 +298,6 @@
                             </div>
 
                             <div class="row g-3 mb-3">
-                                {{-- Severidad --}}
                                 <div class="col-md-4">
                                     <label class="form-label text-secondary small">Severidad <span class="text-danger">*</span></label>
                                     <select class="form-select bg-dark text-white border-secondary @error('severity') is-invalid @enderror"
@@ -336,7 +312,6 @@
                                     @enderror
                                 </div>
 
-                                {{-- Responsable --}}
                                 <div class="col-md-4">
                                     <label class="form-label text-secondary small">Responsable Asignado</label>
                                     <select class="form-select bg-dark text-white border-secondary @error('assignedToId') is-invalid @enderror"
@@ -351,7 +326,6 @@
                                     @enderror
                                 </div>
 
-                                {{-- Fecha Límite --}}
                                 <div class="col-md-4">
                                     <label class="form-label text-secondary small">Fecha Límite</label>
                                     <input type="date"
@@ -363,7 +337,6 @@
                                 </div>
                             </div>
 
-                            {{-- Estado & Ciclo de Vida (RF-29) --}}
                             <div class="mb-3">
                                 <label class="form-label text-secondary small">
                                     Estado del Gap (Ciclo de Vida: Abierto → En progreso → Resuelto → Verificado) <span class="text-danger">*</span>
@@ -383,7 +356,6 @@
                                 </div>
                             </div>
 
-                            {{-- Descripción --}}
                             <div class="mb-3">
                                 <label class="form-label text-secondary small">Descripción detallada</label>
                                 <textarea class="form-control bg-dark text-white border-secondary @error('description') is-invalid @enderror"
@@ -407,9 +379,6 @@
         </div>
     @endif
 
-    {{-- =========================================================================
-         Modal de Detalle y Bitácora (RNF-06)
-         ========================================================================= --}}
     @if ($showDetailModal && $viewingGap)
         <div class="modal fade show d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.7);">
             <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
@@ -422,7 +391,6 @@
                     </div>
 
                     <div class="modal-body">
-                        {{-- Resumen del Gap --}}
                         <div class="card bg-secondary bg-opacity-10 border-secondary mb-4 p-3">
                             <div class="row g-2">
                                 <div class="col-md-6">
@@ -456,7 +424,6 @@
                             </div>
                         </div>
 
-                        {{-- Bitácora de Cambios (RNF-06) --}}
                         <h6 class="fw-bold mb-3 text-info">
                             <i class="bi bi-journal-text me-2"></i>Registros en Bitácora (RNF-06)
                         </h6>

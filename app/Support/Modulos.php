@@ -180,7 +180,7 @@ final class Modulos
                         'uri' => 'readiness/trazabilidad',
                         'ruta' => 'readiness.trazabilidad',
                         'capacidad' => Capacidades::VER_READINESS,
-                        'disponible' => false,
+                        'disponible' => true,
                     ],
                 ],
             ],

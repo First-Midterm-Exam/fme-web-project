@@ -11,8 +11,6 @@ use Illuminate\Support\Facades\DB;
 class GapTransitionService
 {
     /**
-     * Transition a gap to a new lifecycle status with sequence validation (RF-29).
-     *
      * @throws DomainException
      */
     public function transition(Gap $gap, string $newStatus, ?User $user = null, ?string $reason = null): void
@@ -42,8 +40,6 @@ class GapTransitionService
     }
 
     /**
-     * Update gap details (severity, assigned_to_id, due_date, status) and log each change (RNF-06).
-     *
      * @param  array{severity?: string, assigned_to_id?: int|null, due_date?: string|null, status?: string, title?: string, description?: string|null}  $data
      *
      * @throws DomainException
@@ -51,7 +47,6 @@ class GapTransitionService
     public function updateGap(Gap $gap, array $data, ?User $user = null): void
     {
         DB::transaction(function () use ($gap, $data, $user): void {
-            // 1. Check severity change
             if (isset($data['severity']) && $data['severity'] !== $gap->severity) {
                 $oldSeverity = $gap->severity;
                 $gap->severity = $data['severity'];
@@ -64,7 +59,6 @@ class GapTransitionService
                 );
             }
 
-            // 2. Check assigned_to change
             if (array_key_exists('assigned_to_id', $data) && (int) $data['assigned_to_id'] !== (int) $gap->assigned_to_id) {
                 $oldAssignedId = $gap->assigned_to_id;
                 $oldUserName = $gap->assignedTo !== null ? $gap->assignedTo->name : 'Sin asignar';
@@ -82,7 +76,6 @@ class GapTransitionService
                 );
             }
 
-            // 3. Check due_date change
             if (array_key_exists('due_date', $data)) {
                 $oldDate = $gap->due_date ? Carbon::parse($gap->due_date)->format('Y-m-d') : null;
                 $newDate = $data['due_date'] ? Carbon::parse($data['due_date'])->format('Y-m-d') : null;
@@ -99,7 +92,6 @@ class GapTransitionService
                 }
             }
 
-            // 4. Check title and description
             if (isset($data['title'])) {
                 $gap->title = $data['title'];
             }
@@ -109,7 +101,6 @@ class GapTransitionService
 
             $gap->save();
 
-            // 5. Check status transition
             if (isset($data['status']) && $data['status'] !== $gap->status) {
                 $this->transition($gap, $data['status'], $user);
             }

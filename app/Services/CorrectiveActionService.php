@@ -11,15 +11,12 @@ use Illuminate\Validation\ValidationException;
 class CorrectiveActionService
 {
     /**
-     * Create a corrective action for a gap (HU-18).
-     *
      * @param  array{description: string, responsible_id: int, due_date: string}  $data
      *
      * @throws ValidationException
      */
     public function createForGap(Gap $gap, array $data, ?User $creator = null): CorrectiveAction
     {
-        // Regla: Un gap solo puede tener UNA acción correctiva activa a la vez
         $hasActive = $gap->correctiveActions()
             ->where('status', '!=', CorrectiveAction::STATUS_CERRADA)
             ->where('progress_percent', '<', 100)
@@ -41,7 +38,6 @@ class CorrectiveActionService
                 'status' => CorrectiveAction::STATUS_ABIERTA,
             ]);
 
-            // Regla: Al crear la acción, el gap pasa automáticamente de "abierto" a "en progreso"
             if ($gap->status === Gap::STATUS_ABIERTO) {
                 $gap->transitionTo(
                     Gap::STATUS_EN_PROGRESO,

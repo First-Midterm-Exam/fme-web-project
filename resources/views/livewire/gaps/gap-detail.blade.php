@@ -1,5 +1,4 @@
 <div class="container-fluid py-4">
-    {{-- Header & Breadcrumb --}}
     <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
         <div>
             <nav aria-label="breadcrumb">
@@ -36,7 +35,6 @@
         </div>
     </div>
 
-    {{-- Feedback Messages --}}
     @if ($successMessage)
         <div class="alert alert-success alert-dismissible fade show shadow-sm" role="alert">
             <i class="bi bi-check-circle-fill me-2"></i>{{ $successMessage }}
@@ -51,7 +49,6 @@
         </div>
     @endif
 
-    {{-- Alert if overdue (RF-30) --}}
     @if ($gap->isOverdue())
         <div class="alert alert-danger d-flex align-items-center mb-4 border-danger shadow-sm py-2" role="alert">
             <i class="bi bi-exclamation-triangle-fill fs-4 me-3 text-danger"></i>
@@ -63,16 +60,13 @@
     @endif
 
     <div class="row g-4">
-        {{-- Left Column: Gap Details --}}
         <div class="col-lg-7">
-            {{-- Gap Main Information Card --}}
             <div class="card bg-dark border-secondary shadow-sm mb-4">
                 <div class="card-header bg-dark border-secondary d-flex justify-content-between align-items-center">
                     <span class="text-uppercase fw-semibold small text-secondary">
                         <i class="bi bi-info-circle me-1"></i>Información del Gap
                     </span>
                     <div class="d-flex gap-2 align-items-center">
-                        {{-- Severity Badge --}}
                         <span class="badge {{ match($gap->severity) {
                             'Crítica' => 'bg-danger',
                             'Alta' => 'bg-warning text-dark',
@@ -82,7 +76,6 @@
                             Severidad: {{ $gap->severity ?? 'Sin asignar' }}
                         </span>
 
-                        {{-- Status Badge --}}
                         <span class="badge {{ match($gap->status) {
                             'Abierto' => 'bg-warning text-dark',
                             'En progreso' => 'bg-primary',
@@ -161,7 +154,6 @@
                 </div>
             </div>
 
-            {{-- Bitácora de Auditoría del Gap (RNF-06) --}}
             <div class="card bg-dark border-secondary shadow-sm">
                 <div class="card-header bg-dark border-secondary">
                     <span class="text-uppercase fw-semibold small text-secondary">
@@ -203,7 +195,6 @@
             </div>
         </div>
 
-        {{-- Right Column: Acciones Correctivas (HU-18 / HU-19) --}}
         <div class="col-lg-5">
             <div class="card bg-dark border-secondary shadow-sm mb-4">
                 <div class="card-header bg-dark border-secondary d-flex justify-content-between align-items-center">
@@ -240,7 +231,6 @@
                                 </div>
                             </div>
 
-                            {{-- Progreso de la acción --}}
                             <div class="mt-3">
                                 <div class="d-flex justify-content-between small text-secondary mb-1">
                                     <span>Avance de la acción</span>
@@ -256,7 +246,6 @@
                                 </div>
                             </div>
 
-                            {{-- Evidencia de Solución Adjunta (si existe) --}}
                             @if ($activeAction->solutionEvidence)
                                 <div class="mt-3 p-2 bg-dark rounded border border-success border-opacity-50 small d-flex justify-content-between align-items-center">
                                     <div class="text-truncate me-2">
@@ -274,7 +263,6 @@
                                 </div>
                             @endif
 
-                            {{-- Botón para actualizar avance (HU-19) --}}
                             @can('update', $activeAction)
                                 <button type="button"
                                         class="btn btn-outline-info btn-sm mt-3 w-100 fw-semibold"
@@ -284,7 +272,6 @@
                             @endcan
                         </div>
 
-                        {{-- Historial de Avance de la Acción (HU-19 Auditoría) --}}
                         <div class="mt-4">
                             <span class="text-uppercase fw-semibold small text-secondary d-block mb-2">
                                 <i class="bi bi-journal-text me-1"></i>Historial de Avance de la Acción (HU-19)
@@ -334,7 +321,6 @@
                         </div>
                     @endif
 
-                    {{-- Historial de acciones correctivas previas cerradas --}}
                     @php
                         $closedActions = $gap->correctiveActions->filter(fn ($a) => ! $a->isActive());
                     @endphp
@@ -359,7 +345,6 @@
         </div>
     </div>
 
-    {{-- Modal: Crear Acción Correctiva (HU-18) --}}
     @if ($showingCreateModal)
         <div class="modal fade show d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.7);" role="dialog">
             <div class="modal-dialog modal-dialog-centered">
@@ -446,7 +431,6 @@
         </div>
     @endif
 
-    {{-- Modal: Actualizar Avance de Acción Correctiva (HU-19) --}}
     @if ($showingUpdateProgressModal && $activeAction)
         <div class="modal fade show d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.7);" role="dialog">
             <div class="modal-dialog modal-dialog-centered">

@@ -327,6 +327,13 @@
                     </div>
 
                     <div class="modal-footer border-secondary">
+                        @can('ver-readiness')
+                            <a href="{{ route('readiness.trazabilidad', ['appraisal' => $appraisal->id, 'practica' => $selectedPractice->id]) }}"
+                               class="btn btn-outline-info btn-sm"
+                               wire:navigate>
+                                <i class="bi bi-bezier2 me-1"></i>Ver trazabilidad
+                            </a>
+                        @endcan
                         @can('evaluar-cumplimiento')
                             <a href="{{ route('criterios.index', [$appraisal->id, $selectedPractice->id]) }}"
                                class="btn btn-outline-light btn-sm">

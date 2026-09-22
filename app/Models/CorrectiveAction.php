@@ -87,9 +87,6 @@ class CorrectiveAction extends Model
         return $this->hasMany(CorrectiveActionLog::class)->latest();
     }
 
-    /**
-     * Record a change in the corrective action audit log.
-     */
     public function recordLog(?User $user, string $field, ?string $oldValue, ?string $newValue, ?string $description = null): CorrectiveActionLog
     {
         return $this->logs()->create([
@@ -101,17 +98,11 @@ class CorrectiveAction extends Model
         ]);
     }
 
-    /**
-     * Check if the corrective action is still active (not closed).
-     */
     public function isActive(): bool
     {
         return $this->status !== self::STATUS_CERRADA && $this->progress_percent < 100;
     }
 
-    /**
-     * Check if the corrective action is overdue.
-     */
     public function isOverdue(): bool
     {
         if (! $this->isActive()) {

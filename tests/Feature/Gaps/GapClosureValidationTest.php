@@ -181,7 +181,6 @@ test('e) un usuario sin acceso al proyecto no puede validar el Gap', function ()
 test('f) un Gap ya Cerrado no puede volver a aparecer en el listado ni validarse de nuevo', function (): void {
     [$gap, $action, $processManager] = createResolvedGapForClosure();
 
-    // Aprobar cierre
     app(ValidateGapClosureAction::class)->execute($gap, $processManager, 'approve');
     $gap->refresh();
     expect($gap->status)->toBe(Gap::STATUS_CERRADO);
