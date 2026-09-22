@@ -121,5 +121,7 @@ Route::middleware(['auth', 'can:evaluar-cumplimiento'])
         Route::put('{criterio}', 'update')->name('update');
         Route::delete('{criterio}', 'destroy')->name('destroy');
     });
+    Route::get('/appraisals/{appraisal}/readiness', \App\Livewire\Appraisals\AppraisalReadinessScore::class)
+    ->name('appraisals.readiness');
 
 require __DIR__.'/auth.php';
