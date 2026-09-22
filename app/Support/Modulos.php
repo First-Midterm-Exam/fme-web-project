@@ -149,6 +149,15 @@ final class Modulos
                         'capacidad' => Capacidades::GESTIONAR_GAPS,
                         'disponible' => false,
                     ],
+                    [
+                        'etiqueta' => 'Validación de Cierre',
+                        'descripcion' => 'Verificación y cierre formal de gaps resueltos.',
+                        'icono' => 'bi-patch-check',
+                        'uri' => 'gaps/validacion',
+                        'ruta' => 'gaps.validacion',
+                        'capacidad' => Capacidades::GESTIONAR_GAPS,
+                        'disponible' => true,
+                    ],
                 ],
             ],
             [

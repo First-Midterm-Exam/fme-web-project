@@ -6,6 +6,7 @@ use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 /**
  * @property int $id
@@ -15,10 +16,12 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property string|Carbon $due_date
  * @property int $progress_percent
  * @property string $status
+ * @property int|null $solution_evidence_id
  * @property Carbon $created_at
  * @property Carbon $updated_at
  * @property-read Gap $gap
  * @property-read User $responsible
+ * @property-read Evidence|null $solutionEvidence
  */
 class CorrectiveAction extends Model
 {
@@ -40,6 +43,7 @@ class CorrectiveAction extends Model
         'due_date',
         'progress_percent',
         'status',
+        'solution_evidence_id',
     ];
 
     /**
@@ -48,6 +52,7 @@ class CorrectiveAction extends Model
     protected $casts = [
         'due_date' => 'date',
         'progress_percent' => 'integer',
+        'solution_evidence_id' => 'integer',
     ];
 
     /**
@@ -64,6 +69,36 @@ class CorrectiveAction extends Model
     public function responsible(): BelongsTo
     {
         return $this->belongsTo(User::class, 'responsible_id');
+    }
+
+    /**
+     * @return BelongsTo<Evidence, $this>
+     */
+    public function solutionEvidence(): BelongsTo
+    {
+        return $this->belongsTo(Evidence::class, 'solution_evidence_id');
+    }
+
+    /**
+     * @return HasMany<CorrectiveActionLog, $this>
+     */
+    public function logs(): HasMany
+    {
+        return $this->hasMany(CorrectiveActionLog::class)->latest();
+    }
+
+    /**
+     * Record a change in the corrective action audit log.
+     */
+    public function recordLog(?User $user, string $field, ?string $oldValue, ?string $newValue, ?string $description = null): CorrectiveActionLog
+    {
+        return $this->logs()->create([
+            'user_id' => $user?->id,
+            'field' => $field,
+            'old_value' => $oldValue,
+            'new_value' => $newValue,
+            'description' => $description,
+        ]);
     }
 
     /**
