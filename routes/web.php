@@ -20,6 +20,7 @@ use App\Livewire\Users\UserManagement;
 use App\Models\User;
 use App\Support\Modulos;
 use Illuminate\Support\Facades\Route;
+use App\Livewire\Appraisals\MissingActivitiesView;
 
 Route::view('/', 'welcome');
 
@@ -123,5 +124,8 @@ Route::middleware(['auth', 'can:evaluar-cumplimiento'])
     });
     Route::get('/appraisals/{appraisal}/readiness', \App\Livewire\Appraisals\AppraisalReadinessScore::class)
     ->name('appraisals.readiness');
+    Route::get('/appraisals/{appraisal}/missing-activities', MissingActivitiesView::class)
+    ->name('appraisals.missing-activities')
+    ->middleware(['auth']);
 
 require __DIR__.'/auth.php';
