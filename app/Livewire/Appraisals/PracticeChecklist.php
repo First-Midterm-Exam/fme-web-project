@@ -2,11 +2,13 @@
 
 namespace App\Livewire\Appraisals;
 
+use App\Actions\Gaps\GenerateGapAction;
 use App\Models\Appraisal;
 use App\Models\CriterionCheck;
 use App\Models\Practice;
 use App\Models\PracticeCriterion;
 use App\Models\PracticeEvaluation;
+use App\Models\User;
 use App\Services\PracticeStatusCalculator;
 use Illuminate\Contracts\View\View;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
@@ -81,10 +83,22 @@ class PracticeChecklist extends Component
             ]
         );
 
+        $message = 'El criterio fue marcado como "'.$status.'".';
+
+        if ($status === CriterionCheck::STATUS_NO_CUMPLE) {
+            $gap = app(GenerateGapAction::class)->fromUnmetCriterion(
+                $this->evaluation,
+                $this->activeCriteria()->firstWhere('id', $criterionId),
+                $this->currentUser()
+            );
+
+            $message .= ' Gap '.$gap->code.' abierto.';
+        }
+
         PracticeStatusCalculator::calculateForEvaluation($this->evaluation);
         $this->loadMarks();
 
-        session()->flash('message', 'El criterio fue marcado como "'.$status.'".');
+        session()->flash('message', $message);
     }
 
     public function markAll(string $status): void
@@ -111,10 +125,21 @@ class PracticeChecklist extends Component
             }
         });
 
+        $message = 'Se marcaron todos los criterios como "'.$status.'".';
+
+        if ($status === CriterionCheck::STATUS_NO_CUMPLE) {
+            $generator = app(GenerateGapAction::class);
+            $gaps = $this->activeCriteria()->map(
+                fn (PracticeCriterion $criterion) => $generator->fromUnmetCriterion($this->evaluation, $criterion, $this->currentUser())
+            );
+
+            $message .= ' Gaps abiertos: '.$gaps->pluck('code')->implode(', ').'.';
+        }
+
         PracticeStatusCalculator::calculateForEvaluation($this->evaluation);
         $this->loadMarks();
 
-        session()->flash('message', 'Se marcaron todos los criterios como "'.$status.'".');
+        session()->flash('message', $message);
     }
 
     public function editNote(int $criterionId): void
@@ -172,6 +197,11 @@ class PracticeChecklist extends Component
             'percentage' => $this->evaluation->compliancePercentage(),
             'metCount' => $this->evaluation->metCriteriaCount(),
             'applicableCount' => $this->evaluation->applicableCriteriaCount(),
+            'gaps' => $this->evaluation->gaps()
+                ->abiertos()
+                ->whereNotNull('practice_criterion_id')
+                ->get()
+                ->keyBy('practice_criterion_id'),
         ])->layout('layouts.app', ['header' => 'Checklist de Criterios']);
     }
 
@@ -204,6 +234,14 @@ class PracticeChecklist extends Component
     private function activeCriteria(): Collection
     {
         return $this->practice->criteria->where('estado', true)->values();
+    }
+
+    private function currentUser(): User
+    {
+        /** @var User $user */
+        $user = auth()->user();
+
+        return $user;
     }
 
     private function criterionBelongsToPractice(int $criterionId): bool

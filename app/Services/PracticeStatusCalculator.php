@@ -6,6 +6,7 @@ namespace App\Services;
 
 use App\Models\CriterionCheck;
 use App\Models\Evidence;
+use App\Models\EvidenceStatus;
 use App\Models\PracticeEvaluation;
 
 final class PracticeStatusCalculator
@@ -95,9 +96,8 @@ final class PracticeStatusCalculator
 
         $evidenciasData = $evaluation->practice->evidences()
             ->where('evidences.project_id', $evaluation->appraisal->project_id)
-            ->with('status')
             ->get()
-            ->map(fn (Evidence $evidence): array => ['estado' => $evidence->status->name])
+            ->map(fn (Evidence $evidence): array => ['verificada' => (int) $evidence->status_id === EvidenceStatus::VERIFICADA])
             ->values()
             ->all();
 

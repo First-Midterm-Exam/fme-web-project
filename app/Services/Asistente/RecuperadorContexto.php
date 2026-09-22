@@ -173,13 +173,14 @@ class RecuperadorContexto
     private function gapsCriticos(Appraisal $appraisal): ContextoReporte
     {
         $gaps = collect($this->gaps->gapsDe($appraisal));
-        $criticos = $gaps->where('severidad', 'alta')->sortBy('fecha_limite')->values();
+        $criticos = $gaps->where('severidad', 'alta');
+        $sinClasificar = $criticos->isEmpty() && $gaps->whereNull('severidad')->isNotEmpty();
 
-        $filas = $criticos->map(fn (array $gap): array => [
+        $filas = ($sinClasificar ? $gaps : $criticos)->sortBy('fecha_limite')->values()->map(fn (array $gap): array => [
             $gap['codigo'],
             $gap['titulo'],
             $gap['practica'],
-            ucfirst($gap['severidad']),
+            $gap['severidad'] === null ? 'Sin asignar' : ucfirst($gap['severidad']),
             $gap['estado'],
             $gap['fecha_limite'],
         ])->all();
@@ -193,7 +194,7 @@ class RecuperadorContexto
                 'Gaps registrados' => $gaps->count(),
                 'Gaps críticos' => $criticos->count(),
             ],
-            $this->gaps->esDePrueba() ? 'La información de gaps corresponde a datos de ejemplo.' : null,
+            $sinClasificar ? 'Los gaps aún no tienen severidad asignada; se muestran todos los gaps abiertos.' : null,
         );
     }
 

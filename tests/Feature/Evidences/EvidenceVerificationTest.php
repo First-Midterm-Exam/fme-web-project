@@ -205,14 +205,12 @@ test('lista pendiente solo muestra evidencias en estado Registrada de proyectos 
     $projectUnassigned = createProjectForVerification([$uploader]);
     $evidence2 = createPendingEvidence($projectUnassigned, $uploader);
 
-    // Gestor solo ve projectAssigned
     Livewire::actingAs($gestor)
         ->test(PendingEvidenceVerification::class)
         ->assertViewHas('pendingEvidences', function ($pendingEvidences) use ($evidence1, $evidence2): bool {
             return $pendingEvidences->contains('id', $evidence1->id) && ! $pendingEvidences->contains('id', $evidence2->id);
         });
 
-    // Admin ve ambas evidencias
     Livewire::actingAs($admin)
         ->test(PendingEvidenceVerification::class)
         ->assertViewHas('pendingEvidences', function ($pendingEvidences) use ($evidence1, $evidence2): bool {
@@ -226,7 +224,6 @@ test('la verificacion se aplica sobre la evidencia vigente (la mas reciente) en 
     $project = createProjectForVerification([$gestor, $uploader]);
     $evidence = createPendingEvidence($project, $uploader);
 
-    // Agregar version 2
     EvidenceVersion::create([
         'evidence_id' => $evidence->id,
         'number' => 2,

@@ -5,6 +5,7 @@ namespace App\Livewire\Evidences;
 use App\Actions\Evidences\VerifyEvidenceAction;
 use App\Models\Evidence;
 use App\Models\EvidenceStatus;
+use App\Models\Gap;
 use App\Models\Project;
 use App\Models\Rol;
 use App\Models\User;
@@ -140,7 +141,17 @@ class PendingEvidenceVerification extends Component
             default => '',
         };
 
-        session()->flash('message', 'La evidencia '.$this->selectedEvidence->code.' fue verificada como "'.$statusLabel.'".');
+        $message = 'La evidencia '.$this->selectedEvidence->code.' fue verificada como "'.$statusLabel.'".';
+
+        if ($statusId === EvidenceStatus::RECHAZADA) {
+            $gapCodes = Gap::where('evidence_id', $this->selectedEvidence->id)->orderBy('code')->pluck('code');
+
+            $message .= $gapCodes->isEmpty()
+                ? ' No se generaron gaps porque no está asociada a prácticas de un appraisal activo.'
+                : ' Se generaron los gaps: '.$gapCodes->implode(', ').'.';
+        }
+
+        session()->flash('message', $message);
 
         $this->closeVerifyModal();
     }

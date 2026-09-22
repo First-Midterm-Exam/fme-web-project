@@ -5,7 +5,7 @@ namespace App\Providers;
 use App\Models\Rol;
 use App\Models\User;
 use App\Services\Asistente\Fuentes\FuenteGaps;
-use App\Services\Asistente\Fuentes\GapsDePrueba;
+use App\Services\Asistente\Fuentes\GapsRegistrados;
 use App\Services\Documentos\RevisorFormato;
 use App\Services\Documentos\RevisorFormatoDePrueba;
 use App\Services\Ia\ClienteGroq;
@@ -32,7 +32,7 @@ class AppServiceProvider extends ServiceProvider
         ));
 
         $this->app->bind(RevisorFormato::class, RevisorFormatoDePrueba::class);
-        $this->app->bind(FuenteGaps::class, GapsDePrueba::class);
+        $this->app->bind(FuenteGaps::class, GapsRegistrados::class);
     }
 
     /**
