@@ -180,7 +180,16 @@ final class Modulos
                         'uri' => 'readiness',
                         'ruta' => 'readiness.index',
                         'capacidad' => Capacidades::VER_READINESS,
-                        'disponible' => false,
+                        'disponible' => true,
+                    ],
+                    [
+                        'etiqueta' => 'Simulación de Appraisal',
+                        'descripcion' => 'Veredicto de preparación, condiciones y brechas.',
+                        'icono' => 'bi-clipboard2-pulse',
+                        'uri' => 'readiness/simulacion',
+                        'ruta' => 'readiness.simulacion',
+                        'capacidad' => Capacidades::VER_READINESS,
+                        'disponible' => true,
                     ],
                     [
                         'etiqueta' => 'Trazabilidad',
@@ -202,6 +211,14 @@ final class Modulos
     public static function items(): array
     {
         return array_merge(...array_column(self::grupos(), 'items'));
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    public static function item(string $ruta): array
+    {
+        return collect(self::items())->firstWhere('ruta', $ruta) ?? [];
     }
 
     /**

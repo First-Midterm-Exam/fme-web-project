@@ -2,10 +2,14 @@
 
 use App\Http\Controllers\CriterioController;
 use App\Http\Controllers\EvidenceDownloadController;
+use App\Http\Controllers\ReadinessMenuController;
 use App\Http\Controllers\ReportExportController;
+use App\Http\Controllers\SimulacionController;
 use App\Livewire\Appraisals\AppraisalManagement;
 use App\Livewire\Appraisals\AppraisalPracticeList;
+use App\Livewire\Appraisals\AppraisalReadinessScore;
 use App\Livewire\Appraisals\AppraisalScopeSelection;
+use App\Livewire\Appraisals\MissingActivitiesView;
 use App\Livewire\Appraisals\PracticeChecklist;
 use App\Livewire\Audit\AuditLogList;
 use App\Livewire\Evidences\EvidenceDetail;
@@ -21,7 +25,6 @@ use App\Livewire\Users\UserManagement;
 use App\Models\User;
 use App\Support\Modulos;
 use Illuminate\Support\Facades\Route;
-use App\Livewire\Appraisals\MissingActivitiesView;
 
 Route::view('/', 'welcome');
 
@@ -98,6 +101,16 @@ Route::get('bitacora', AuditLogList::class)
     ->middleware(['auth', 'can:ver-bitacora'])
     ->name('bitacora.index');
 
+Route::get('readiness', ReadinessMenuController::class)
+    ->middleware(['auth', 'can:ver-readiness'])
+    ->defaults('destino', 'appraisals.readiness')
+    ->name('readiness.index');
+
+Route::get('readiness/simulacion', ReadinessMenuController::class)
+    ->middleware(['auth', 'can:ver-readiness'])
+    ->defaults('destino', 'appraisals.simulaciones.index')
+    ->name('readiness.simulacion');
+
 Route::get('readiness/trazabilidad', Traceability::class)
     ->middleware(['auth', 'can:ver-readiness'])
     ->name('readiness.trazabilidad');
@@ -123,11 +136,21 @@ Route::middleware(['auth', 'can:evaluar-cumplimiento'])
         Route::put('{criterio}', 'update')->name('update');
         Route::delete('{criterio}', 'destroy')->name('destroy');
     });
-    Route::get('/appraisals/{appraisal}/readiness', \App\Livewire\Appraisals\AppraisalReadinessScore::class)
+Route::get('/appraisals/{appraisal}/readiness', AppraisalReadinessScore::class)
+    ->middleware(['auth'])
     ->name('appraisals.readiness');
-    Route::get('/appraisals/{appraisal}/missing-activities', MissingActivitiesView::class)
+Route::get('/appraisals/{appraisal}/missing-activities', MissingActivitiesView::class)
     ->name('appraisals.missing-activities')
     ->middleware(['auth']);
+
+Route::middleware(['auth'])
+    ->prefix('appraisals/{appraisal}/simulaciones')
+    ->name('appraisals.simulaciones.')
+    ->controller(SimulacionController::class)
+    ->group(function () {
+        Route::get('/', 'index')->name('index');
+        Route::post('/', 'store')->name('store');
+    });
 
 Route::get('appraisals/{appraisal}/reportes/{tipo}', ReportExportController::class)
     ->middleware(['auth'])

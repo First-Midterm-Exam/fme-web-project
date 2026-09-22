@@ -154,7 +154,6 @@ it('generates readiness pdf report containing rnf14 disclaimer for authorized us
     $response->assertHeader('content-type', 'application/pdf');
     expect($response->headers->get('content-disposition'))->toContain('reporte-readiness-');
 
-    // Verify readiness data was processed and disclaimer constant is present
     $disclaimer = AppraisalReadinessService::DISCLAIMER_TEXT;
     expect($disclaimer)->toContain('CMMI');
 });

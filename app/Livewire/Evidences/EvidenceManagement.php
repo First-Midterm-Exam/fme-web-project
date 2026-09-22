@@ -206,7 +206,7 @@ class EvidenceManagement extends Component
             'type.in' => 'El tipo de evidencia seleccionado no es válido.',
             'file.required' => 'Debe adjuntar un archivo de evidencia.',
             'file.file' => 'El archivo adjunto no es válido.',
-            'file.max' => 'El archivo supera el tamaño máximo permitido de 10 MB (RNF-13).',
+            'file.max' => 'El archivo supera el tamaño máximo permitido de 10 MB.',
             'file.mimes' => 'El tipo de archivo no está permitido. Tipos permitidos: PDF, Word, Excel, PowerPoint, imágenes (PNG, JPG, JPEG) y texto (TXT).',
         ];
     }

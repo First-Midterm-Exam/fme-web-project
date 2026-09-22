@@ -10,10 +10,10 @@ use Illuminate\Support\Facades\Hash;
 class UsuarioSeeder extends Seeder
 {
     private const USUARIOS = [
-        ['email' => 'admin@dima.cl', 'name' => 'Administrador DIMA', 'rol' => Rol::ADMINISTRADOR],
-        ['email' => 'gestor@dima.cl', 'name' => 'Gestor de Procesos DIMA', 'rol' => Rol::GESTOR_PROCESOS],
-        ['email' => 'jefe@dima.cl', 'name' => 'Jefe de Proyecto DIMA', 'rol' => Rol::JEFE_PROYECTO],
-        ['email' => 'colaborador@dima.cl', 'name' => 'Colaborador DIMA', 'rol' => Rol::COLABORADOR],
+        ['email' => 'admin@dima.bo', 'name' => 'Patricia Vargas Ledezma', 'rol' => Rol::ADMINISTRADOR],
+        ['email' => 'gestor@dima.bo', 'name' => 'Mariana Salazar Céspedes', 'rol' => Rol::GESTOR_PROCESOS],
+        ['email' => 'jefe@dima.bo', 'name' => 'Rodrigo Aliaga Ferrel', 'rol' => Rol::JEFE_PROYECTO],
+        ['email' => 'colaborador@dima.bo', 'name' => 'Daniela Ferrufino Áñez', 'rol' => Rol::COLABORADOR],
     ];
 
     public function run(): void

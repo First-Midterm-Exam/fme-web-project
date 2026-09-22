@@ -4,19 +4,26 @@ namespace App\Livewire\Appraisals;
 
 use App\Models\Appraisal;
 use App\Services\MissingActivitiesService;
+use Illuminate\Contracts\View\View;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Livewire\Component;
 
 class MissingActivitiesView extends Component
 {
+    use AuthorizesRequests;
+
     public Appraisal $appraisal;
+
     public string $filterType = 'all';
 
-    public function mount(Appraisal $appraisal)
+    public function mount(Appraisal $appraisal): void
     {
+        $this->authorize('view', $appraisal);
+
         $this->appraisal = $appraisal;
     }
 
-    public function render(MissingActivitiesService $service)
+    public function render(MissingActivitiesService $service): View
     {
         $allActivities = $service->getMissingActivities($this->appraisal);
 

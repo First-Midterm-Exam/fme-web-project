@@ -7,14 +7,20 @@ namespace App\Livewire\Appraisals;
 use App\Models\Appraisal;
 use App\Services\AppraisalReadinessService;
 use Illuminate\Contracts\View\View;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Livewire\Component;
 
 class AppraisalReadinessScore extends Component
 {
+    use AuthorizesRequests;
+
     public Appraisal $appraisal;
 
     public function mount(Appraisal $appraisal): void
     {
+        $this->authorize('ver-readiness');
+        $this->authorize('view', $appraisal);
+
         $this->appraisal = $appraisal;
     }
 

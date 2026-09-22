@@ -2,7 +2,7 @@
     <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
             <h2 class="h3 font-weight-bold text-white mb-1">Validación de Cierre de Gaps</h2>
-            <p class="text-secondary mb-0">Revisión de soluciones y cierre formal de brechas en estado Resuelto (HU-20).</p>
+            <p class="text-secondary mb-0">Revisión de soluciones y cierre formal de brechas en estado Resuelto.</p>
         </div>
     </div>
 

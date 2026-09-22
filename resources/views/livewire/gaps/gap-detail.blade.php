@@ -157,7 +157,7 @@
             <div class="card bg-dark border-secondary shadow-sm">
                 <div class="card-header bg-dark border-secondary">
                     <span class="text-uppercase fw-semibold small text-secondary">
-                        <i class="bi bi-clock-history me-1"></i>Bitácora de Cambios del Gap (RNF-06)
+                        <i class="bi bi-clock-history me-1"></i>Bitácora de Cambios del Gap
                     </span>
                 </div>
                 <div class="card-body p-3">
@@ -199,7 +199,7 @@
             <div class="card bg-dark border-secondary shadow-sm mb-4">
                 <div class="card-header bg-dark border-secondary d-flex justify-content-between align-items-center">
                     <span class="text-uppercase fw-semibold small text-secondary">
-                        <i class="bi bi-tools me-1"></i>Acción Correctiva Activa (HU-18/19)
+                        <i class="bi bi-tools me-1"></i>Acción Correctiva Activa
                     </span>
                     <span class="badge bg-secondary">{{ $gap->correctiveActions->count() }}</span>
                 </div>
@@ -274,7 +274,7 @@
 
                         <div class="mt-4">
                             <span class="text-uppercase fw-semibold small text-secondary d-block mb-2">
-                                <i class="bi bi-journal-text me-1"></i>Historial de Avance de la Acción (HU-19)
+                                <i class="bi bi-journal-text me-1"></i>Historial de Avance de la Acción
                             </span>
 
                             @if ($activeAction->logs->isEmpty())

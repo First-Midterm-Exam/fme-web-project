@@ -3,28 +3,24 @@
 namespace App\Services;
 
 use App\Models\Appraisal;
-use App\Models\Gap;
 use App\Models\CorrectiveAction;
-use App\Models\PracticeEvaluation;
 use App\Models\Evidence;
+use App\Models\EvidenceStatus;
+use App\Models\Gap;
+use App\Models\PracticeEvaluation;
 use Carbon\Carbon;
 use Illuminate\Support\Collection;
 
 class MissingActivitiesService
 {
-    /**
-     * Obtiene y prioriza todos los pendientes de un appraisal.
-     */
     public function getMissingActivities(Appraisal $appraisal): Collection
     {
         $items = collect();
 
-        // 1. Acciones correctivas vencidas o pendientes asociadas a gaps del appraisal
         $evaluationIds = $appraisal->practiceEvaluations()->pluck('id');
         $gaps = Gap::whereIn('practice_evaluation_id', $evaluationIds)->get();
 
         foreach ($gaps as $gap) {
-            // Gaps abiertos
             if (in_array(strtolower($gap->status ?? ''), ['abierto', 'open', 'en_progreso', 'en progreso', 'pendiente'])) {
                 $priorityWeight = match (strtolower($gap->severity ?? 'media')) {
                     'critica', 'crítica', 'alta', 'high' => 100,
@@ -38,16 +34,15 @@ class MissingActivitiesService
                 $items->push([
                     'type' => 'Gap Abierto',
                     'category' => 'gap',
-                    'title' => 'Gap: ' . ($gap->title ?? $gap->description ?? 'Gap #' . $gap->id),
+                    'title' => 'Gap: '.($gap->title ?? $gap->description ?? 'Gap #'.$gap->id),
                     'severity' => $gap->severity ?? 'Media',
                     'due_date' => $dueDate,
                     'is_overdue' => $isOverdue,
                     'priority_score' => $priorityWeight + ($isOverdue ? 50 : 0),
-                    'action_url' => route('gaps.index') . '?appraisal_id=' . $appraisal->id,
+                    'action_url' => route('gaps.index').'?appraisal_id='.$appraisal->id,
                     'action_label' => 'Gestionar Gap',
                 ]);
             }
-            // Acciones correctivas relacionadas
             if (class_exists(CorrectiveAction::class)) {
                 $actions = CorrectiveAction::where('gap_id', $gap->id)
                     ->whereNotIn('status', ['completada', 'cerrada', 'completed', 'closed'])
@@ -58,61 +53,58 @@ class MissingActivitiesService
                     $items->push([
                         'type' => 'Acción Correctiva',
                         'category' => 'action',
-                        'title' => 'Acción: ' . ($action->description ?? 'Acción #' . $action->id),
+                        'title' => 'Acción: '.($action->description ?? 'Acción #'.$action->id),
                         'severity' => $isOverdue ? 'Crítica (Vencida)' : 'Media',
                         'due_date' => $action->due_date ?? null,
                         'is_overdue' => $isOverdue,
                         'priority_score' => $isOverdue ? 120 : 70,
-                        'action_url' => route('gaps.index') . '?appraisal_id=' . $appraisal->id,
+                        'action_url' => route('gaps.index').'?appraisal_id='.$appraisal->id,
                         'action_label' => 'Ver Acción',
                     ]);
                 }
             }
         }
 
-        // 2. Prácticas no cumplidas o pendientes de evaluación
         $evaluations = PracticeEvaluation::where('appraisal_id', $appraisal->id)
             ->with('practice')
             ->get();
 
         foreach ($evaluations as $eval) {
             $status = strtolower($eval->status ?? 'pendiente');
-            if (in_array($status, ['no_cumple', 'pendiente', 'incompleto', 'no cumplido'])) {
+            if (in_array($status, ['no_cumple', 'no cumple', 'no evaluada', 'parcial', 'pendiente'])) {
                 $items->push([
                     'type' => 'Práctica No Cumplida',
                     'category' => 'practice',
-                    'title' => 'Práctica ' . ($eval->practice->code ?? '') . ': ' . ($eval->practice->name ?? 'Evaluación #' . $eval->id),
-                    'severity' => $status === 'no_cumple' ? 'Alta' : 'Media',
+                    'title' => 'Práctica '.($eval->practice->code ?? '').': '.($eval->practice->name ?? 'Evaluación #'.$eval->id),
+                    'severity' => in_array($status, ['no_cumple', 'no cumple']) ? 'Alta' : 'Media',
                     'due_date' => null,
                     'is_overdue' => false,
-                    'priority_score' => $status === 'no_cumple' ? 65 : 50,
+                    'priority_score' => in_array($status, ['no_cumple', 'no cumple']) ? 65 : 50,
                     'action_url' => route('appraisals.practices', $appraisal),
                     'action_label' => 'Evaluar Práctica',
                 ]);
             }
         }
 
-        // 3. Evidencias pendientes de verificación o aprobación
-        $evidences = Evidence::where('appraisal_id', $appraisal->id)
-            ->whereIn('status', ['borrador', 'pendiente', 'en_revision', 'rechazada'])
+        $evidences = Evidence::where('project_id', $appraisal->project_id)
+            ->whereIn('status_id', [EvidenceStatus::REGISTRADA, EvidenceStatus::OBSERVADA, EvidenceStatus::RECHAZADA])
             ->get();
 
         foreach ($evidences as $evidence) {
-            $isRejected = in_array(strtolower($evidence->status), ['rechazada', 'rejected']);
+            $isRejected = (int) $evidence->status_id === EvidenceStatus::RECHAZADA;
             $items->push([
                 'type' => 'Evidencia Pendiente',
                 'category' => 'evidence',
-                'title' => 'Evidencia: ' . ($evidence->title ?? $evidence->name ?? 'Evidencia #' . $evidence->id),
+                'title' => 'Evidencia: '.($evidence->name ?? 'Evidencia #'.$evidence->id),
                 'severity' => $isRejected ? 'Alta (Rechazada)' : 'Baja',
                 'due_date' => null,
                 'is_overdue' => false,
                 'priority_score' => $isRejected ? 55 : 30,
-                'action_url' => route('evidences.index') . '?appraisal_id=' . $appraisal->id,
+                'action_url' => route('evidencias.index').'?appraisal_id='.$appraisal->id,
                 'action_label' => 'Verificar Evidencia',
             ]);
         }
 
-        // Ordenar por puntaje de urgencia descendente (CA-2)
         return $items->sortByDesc('priority_score')->values();
     }
 }

@@ -431,7 +431,7 @@
                         </div>
 
                         <h6 class="fw-bold mb-3 text-info">
-                            <i class="bi bi-journal-text me-2"></i>Registros en Bitácora (RNF-06)
+                            <i class="bi bi-journal-text me-2"></i>Registros en Bitácora
                         </h6>
 
                         @if ($viewingGap->logs->isEmpty())
