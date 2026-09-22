@@ -1,0 +1,24 @@
+name: Despliegue Automático Laravel
+
+on:
+  push:
+    branches:
+      - despliege
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Conectar a AWS y desplegar
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.AWS_HOST_IP }}
+          username: ${{ secrets.AWS_USERNAME }}
+          key: ${{ secrets.AWS_SSH_KEY }}
+          script: |
+            cd /var/www/proyecto-laravel
+            sudo -u www-data git pull origin despliege
+            sudo -u www-data composer install --no-interaction --prefer-dist --optimize-autoloader
+            sudo -u www-data php artisan config:cache
+            sudo -u www-data php artisan route:cache
+            sudo -u www-data php artisan view:cache
