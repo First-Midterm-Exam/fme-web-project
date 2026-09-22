@@ -246,11 +246,19 @@
 
                             {{-- Acciones --}}
                             <td class="text-end">
-                                {{-- Ver Detalle y Bitácora --}}
+                                {{-- Ver Detalle y Acciones Correctivas (HU-18) --}}
+                                <a href="{{ route('gaps.show', $gap) }}"
+                                   class="btn btn-sm btn-outline-primary me-1"
+                                   title="Ver detalle y acciones correctivas"
+                                   wire:navigate>
+                                    <i class="bi bi-eye"></i>
+                                </a>
+
+                                {{-- Ver Bitácora rápida --}}
                                 <button type="button"
                                         wire:click="openDetail({{ $gap->id }})"
                                         class="btn btn-sm btn-outline-info me-1"
-                                        title="Ver detalle y bitácora">
+                                        title="Ver bitácora rápida">
                                     <i class="bi bi-clock-history"></i>
                                 </button>
 

@@ -134,6 +134,30 @@ class Gap extends Model
     }
 
     /**
+     * @return HasMany<CorrectiveAction, $this>
+     */
+    public function correctiveActions(): HasMany
+    {
+        return $this->hasMany(CorrectiveAction::class)->latest();
+    }
+
+    /**
+     * Get the current active corrective action if any.
+     */
+    public function activeCorrectiveAction(): ?CorrectiveAction
+    {
+        return $this->correctiveActions->first(fn (CorrectiveAction $action) => $action->isActive());
+    }
+
+    /**
+     * Check if the gap has an active corrective action.
+     */
+    public function hasActiveCorrectiveAction(): bool
+    {
+        return $this->activeCorrectiveAction() !== null;
+    }
+
+    /**
      * Scope to filter gaps visible to the given user based on inherited project visibility.
      *
      * @param  Builder<Gap>  $query

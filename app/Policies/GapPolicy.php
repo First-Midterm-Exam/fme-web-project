@@ -29,6 +29,11 @@ class GapPolicy
             return true;
         }
 
+        // HU-18: El responsable asignado a una acción correctiva puede ver el gap
+        if ($gap->correctiveActions()->where('responsible_id', $user->id)->exists()) {
+            return true;
+        }
+
         $project = $gap->practiceEvaluation?->appraisal?->project;
 
         if (! $project) {
